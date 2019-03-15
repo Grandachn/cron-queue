@@ -1,8 +1,11 @@
 package io.github.grandachn.cronqueue.component;
 
 import com.alibaba.fastjson.JSON;
+import io.github.grandachn.cronqueue.job.Job;
 import io.github.grandachn.cronqueue.redis.JedisTemplate;
 import lombok.extern.log4j.Log4j;
+
+import static io.github.grandachn.cronqueue.constant.QueueConstant.DELAY_QUEUE_JOB_POOL;
 
 /**
  * 延迟任务池(维护延迟任务元信息)
@@ -10,28 +13,28 @@ import lombok.extern.log4j.Log4j;
  * @Date 2019/3/12 11:30
  */
 @Log4j
-public class DelayJobPool {
-    private static final String DELAY_QUEUE_JOB_POOL = "delayQueueJobPool";
+class JobPool {
+
 
     /**
      * 获取DelayJob
-     * @param id
-     * @return
+     * @param id 任务id
+     * @return 任务
      */
-    public static DelayJob getDelayJodById(String id) {
-        return JSON.parseObject(JedisTemplate.operate().hget(DELAY_QUEUE_JOB_POOL, id), DelayJob.class);
+    static Job getDelayJodById(String id) {
+        return JSON.parseObject(JedisTemplate.operate().hget(DELAY_QUEUE_JOB_POOL, id), Job.class);
     }
 
     /**
-     * 添加 DelayJob
-     * @param delayJob
+     * 添加 Job
+     * @param job 任务
      */
-    public static boolean addDelayJod(DelayJob delayJob) {
+    static boolean addDelayJod(Job job) {
         try {
-            JedisTemplate.operate().hset(DELAY_QUEUE_JOB_POOL, delayJob.getId(), JSON.toJSONString(delayJob));
+            JedisTemplate.operate().hset(DELAY_QUEUE_JOB_POOL, job.getId(), JSON.toJSONString(job));
             return true;
         }catch (Exception e){
-            log.error("将DelayJob写入DelayJobPool失败: " + delayJob, e);
+            log.error("将DelayJob写入DelayJobPool失败: " + job, e);
         }
         return false;
     }
@@ -39,10 +42,10 @@ public class DelayJobPool {
 
     /**
      * 删除DelayJob
-     * @param id
-     * @return
+     * @param id 任务id
+     * @return 任务
      */
-    public static boolean deleteDelayJodById(String id) {
+    static boolean deleteDelayJodById(String id) {
         try {
             JedisTemplate.operate().hdel(DELAY_QUEUE_JOB_POOL, id);
             return true;

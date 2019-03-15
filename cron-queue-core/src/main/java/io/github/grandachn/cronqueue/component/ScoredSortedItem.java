@@ -6,8 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
+ * 桶中元素，保存任务id和任务下次执行时间
  * @Author by guanda
  * @Date 2019/3/12 13:34
  */
@@ -15,7 +17,7 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ScoredSortedItem implements Serializable{
+class ScoredSortedItem implements Serializable{
     /**
      * 延迟任务的唯一标识
      */
@@ -24,31 +26,6 @@ public class ScoredSortedItem implements Serializable{
     /**
      * 任务的执行时间
      */
-    private long delayTime;
+    private long executeTime;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        ScoredSortedItem that = (ScoredSortedItem) o;
-
-        if (delayTime != that.delayTime) return false;
-        return delayJodId != null ? delayJodId.equals(that.delayJodId) : that.delayJodId == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (int) (delayTime ^ (delayTime >>> 32));
-        result = 31 * result + (delayJodId != null ? delayJodId.hashCode() : 0);
-        return result;
-    }
 }

@@ -12,16 +12,16 @@ import java.util.Set;
  * @Date 2019/3/12 11:56
  */
 @Log4j
-public class DelayBucket {
+class Bucket {
 
     /**
-     * 添加 DelayJob 到 延迟任务桶中
+     * 添加 Job 到 延迟任务桶中
      * @param key
      * @param scoredSortedItem
      */
-    public static boolean addToBucket(String key, ScoredSortedItem scoredSortedItem) {
+    static boolean addToBucket(String key, ScoredSortedItem scoredSortedItem) {
         try {
-            return JedisTemplate.operate().zadd(key, scoredSortedItem.getDelayTime(), JSON.toJSONString(scoredSortedItem)) > 0;
+            return JedisTemplate.operate().zadd(key, scoredSortedItem.getExecuteTime(), JSON.toJSONString(scoredSortedItem)) > 0;
         }catch (Exception e){
             log.error("将scoredSortedItem写入延迟任务桶中失败: " + scoredSortedItem, e);
         }
@@ -33,7 +33,7 @@ public class DelayBucket {
      * @param key
      * @return
      */
-    public static ScoredSortedItem getFirstFromBucket(String key) {
+    static ScoredSortedItem getFirstFromBucket(String key) {
         Set set = JedisTemplate.operate().zrange(key, 0L, 1L);
         if (set.size() == 0) {
             return null;
@@ -46,7 +46,7 @@ public class DelayBucket {
      * @param key
      * @param scoredSortedItem
      */
-    public static boolean deleteFormBucket(String key, ScoredSortedItem scoredSortedItem) {
+    static boolean deleteFormBucket(String key, ScoredSortedItem scoredSortedItem) {
         return JedisTemplate.operate().zrem(key, JSON.toJSONString(scoredSortedItem)) > 0;
     }
 }

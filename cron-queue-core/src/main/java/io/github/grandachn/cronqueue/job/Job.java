@@ -1,4 +1,4 @@
-package io.github.grandachn.cronqueue.component;
+package io.github.grandachn.cronqueue.job;
 
 
 import lombok.AllArgsConstructor;
@@ -17,7 +17,7 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DelayJob implements Serializable {
+public class Job implements Serializable {
     /**
      * 延迟任务的唯一标识，用于检索任务
      */
@@ -31,7 +31,7 @@ public class DelayJob implements Serializable {
     /**
      * 任务的执行时间
      */
-    private long delayTime;
+    private long executeTime;
 
     /**
      * 任务的执行超时时间

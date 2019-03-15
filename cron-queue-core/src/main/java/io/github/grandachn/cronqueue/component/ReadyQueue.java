@@ -16,19 +16,19 @@ import java.util.concurrent.TimeUnit;
 public class ReadyQueue {
     /**
      * 添加jodid到准备队列
-     * @param topic
-     * @param delayJodId
+     * @param topic 主题
+     * @param delayJodId 任务id
      */
-    public static void pushToReadyQueue(String topic, String delayJodId) {
+    static void pushToReadyQueue(String topic, String delayJodId) {
         JedisTemplate.operate().lpush(topic, delayJodId);
     }
 
     /**
      * 从准备队列中获取jodid
-     * @param topic
+     * @param topic 主题
      * @return
      */
-    public static String popFormReadyQueue(String topic) {
+    static String popFormReadyQueue(String topic) {
         List<String> jobIdList = new ArrayList<>();
 
         while (jobIdList.size() == 0){

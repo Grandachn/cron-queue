@@ -3,6 +3,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * 给线程命名
  * @Author by guanda
  * @Date 2019/3/12 16:50
  */
@@ -10,7 +11,7 @@ public class RenameThreadFactory implements ThreadFactory {
     private final AtomicInteger threadNumber = new AtomicInteger(1);
     private final String namePrefix;
 
-    public RenameThreadFactory(String namePrefix) {
+    RenameThreadFactory(String namePrefix) {
         this.namePrefix = namePrefix+"-";
     }
 
