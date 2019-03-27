@@ -31,14 +31,14 @@ public class ReadyQueue {
     static String popFormReadyQueue(String topic) {
         List<String> jobIdList = new ArrayList<>();
 
-        while (jobIdList.size() == 0){
+        while (jobIdList == null || jobIdList.size() == 0){
             try {
                 jobIdList = JedisTemplate.operate().brpop(5, topic);
             } catch (Exception e) {
                 log.error("阻塞等待队列异常，" ,e);
             }
         }
-        return jobIdList.get(0) ;
+        return jobIdList.get(1) ;
     }
 }
 

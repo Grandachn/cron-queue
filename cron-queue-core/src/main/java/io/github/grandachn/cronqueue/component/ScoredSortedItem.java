@@ -17,15 +17,14 @@ import java.util.Objects;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-class ScoredSortedItem implements Serializable{
+public class ScoredSortedItem implements Serializable{
     /**
      * 延迟任务的唯一标识
      */
-    private String delayJodId;
+    private String jodId;
 
     /**
      * 任务的执行时间
      */
     private long executeTime;
-
 }

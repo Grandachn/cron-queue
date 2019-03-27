@@ -1,6 +1,9 @@
 package io.github.grandachn.cronqueue.job;
 
 
+import io.github.grandachn.cronqueue.component.Bucket;
+import io.github.grandachn.cronqueue.component.JobPool;
+import io.github.grandachn.cronqueue.component.ScoredSortedItem;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,49 +16,18 @@ import java.io.Serializable;
  * @Author by guanda
  * @Date 2019/3/12 11:24
  */
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class Job implements Serializable {
-    /**
-     * 延迟任务的唯一标识，用于检索任务
-     */
-    private String id;
+public class Job extends AbstractJob implements Serializable {
 
-    /**
-     * 任务类型（具体业务类型）
-     */
-    private String topic;
+    @Builder
+    public Job(String id, String topic, long executeTime, long ttrTime, String message) {
+        super(id, topic, executeTime, ttrTime, message);
+    }
 
-    /**
-     * 任务的执行时间
-     */
-    private long executeTime;
-
-    /**
-     * 任务的执行超时时间
-     */
-    private long ttrTime;
-
-    /**
-     * 任务重复执行次数
-     */
-    private int repeatSum = 0;
-
-    /**
-     * 任务重复间隔时间
-     */
-    private long repeatInterval;
-
-    /**
-     * 任务已经执行次数
-     */
-    private int executeCount = 0;
-
-    /**
-     * 任务具体的消息内容，用于处理具体业务逻辑用
-     */
-    private String message;
-
+    @Override
+    public void finish(){
+        //正常结束
+        JobPool.deleteJod(this);
+        ScoredSortedItem item = new ScoredSortedItem(this.getId(), this.getExecuteTime());
+        Bucket.deleteFormBucket(item);
+    }
 }
