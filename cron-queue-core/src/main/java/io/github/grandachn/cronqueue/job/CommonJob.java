@@ -12,14 +12,14 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * 延迟任务
+ * 普通任务（在指定时间执行）
  * @Author by guanda
  * @Date 2019/3/12 11:24
  */
-public class Job extends AbstractJob implements Serializable {
+public class CommonJob extends AbstractJob implements Serializable {
 
     @Builder
-    public Job(String id, String topic, long executeTime, long ttrTime, String message) {
+    public CommonJob(String id, String topic, long executeTime, long ttrTime, String message) {
         super(id, topic, executeTime, ttrTime, message);
     }
 

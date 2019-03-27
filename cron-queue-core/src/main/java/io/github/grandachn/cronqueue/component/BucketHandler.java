@@ -26,7 +26,7 @@ public class BucketHandler {
                 @Override
                 public void run() {
                     log.info(BUCKET_KEY_PREFIX + finalI + " handler thread is start");
-                    while (true) {
+                    for(;;) {
                         try {
                             String delayBucketKey = BUCKET_KEY_PREFIX + finalI;
                             ScoredSortedItem item = Bucket.getFirstFromBucket(delayBucketKey);

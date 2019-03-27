@@ -1,0 +1,13 @@
+<configuration>
+　　　<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+　　　　　 <encoder>
+　　　　　　　　　<pattern>[%-5level] %d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %logger{46} - %msg %n</pattern>
+　　　　　 </encoder>
+　　　</appender>
+
+　　　<root level="DEBUG">
+　　　　　　<appender-ref ref="STDOUT" />
+　　　</root>
+
+    <logger name="org.mongodb.driver" level="INFO"/>
+</configuration>

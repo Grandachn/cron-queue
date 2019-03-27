@@ -1,12 +1,11 @@
 package io.github.grandachn.cronqueue.job;
 
+import io.github.grandachn.cronqueue.CronQueueContext;
 import io.github.grandachn.cronqueue.component.Bucket;
 import io.github.grandachn.cronqueue.component.JobPool;
 import io.github.grandachn.cronqueue.component.ScoredSortedItem;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -42,11 +41,26 @@ public class RepeateJob extends AbstractJob implements Serializable{
     }
 
     @Override
+    public String toString() {
+        return "RepeateJob{" +
+                "repeatSum=" + repeatSum +
+                ", repeatInterval=" + repeatInterval +
+                ", executeCount=" + executeCount +
+                ", id='" + id + '\'' +
+                ", topic='" + topic + '\'' +
+                ", executeTime=" + executeTime +
+                ", ttrTime=" + ttrTime +
+                ", message='" + message + '\'' +
+                '}';
+    }
+
+    @Override
     public void finish() {
-        if (this.getExecuteCount() < this.getRepeatSum() - 1){
-            int count = this.getExecuteCount();
-            count++;
-            this.setExecuteCount(count);
+        int count = this.getExecuteCount();
+        count++;
+        this.setExecuteCount(count);
+
+        if (this.getExecuteCount() < this.getRepeatSum()){
             this.setExecuteTime(System.currentTimeMillis() + this.getRepeatInterval());
             //写回delayJobPool
             JobPool.addJod(this);
@@ -54,6 +68,11 @@ public class RepeateJob extends AbstractJob implements Serializable{
             ScoredSortedItem item = new ScoredSortedItem(this.getId(), this.getExecuteTime());
             Bucket.addToBucket(item);
         }else{
+            //落盘的时候需要
+            if(CronQueueContext.getContext().isPersitence()){
+                JobPool.addJod(this);
+            }
+
             //正常结束
             JobPool.deleteJod(this);
             ScoredSortedItem item = new ScoredSortedItem(this.getId(), this.getExecuteTime());

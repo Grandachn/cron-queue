@@ -24,12 +24,12 @@ public abstract class AbstractJob {
     protected String topic;
 
     /**
-     * 任务的执行时间
+     * 任务的执行时间ms
      */
     protected long executeTime;
 
     /**
-     * 任务的执行超时时间
+     * 任务的执行超时时间ms
      */
     protected long ttrTime;
 

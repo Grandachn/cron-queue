@@ -18,8 +18,8 @@ import static io.github.grandachn.cronqueue.constant.QueueConstant.BUCKET_NUM;
 public class Bucket {
 
     /**
-     * 添加 Job 到 延迟任务桶中
-     * @param scoredSortedItem
+     * 添加 CommonJob 到 延迟任务桶中
+     * @param scoredSortedItem 桶中元素
      */
     public static boolean addToBucket(ScoredSortedItem scoredSortedItem) {
         try {
@@ -32,9 +32,9 @@ public class Bucket {
     }
 
     /**
-     * 添加 Job 到 延迟任务桶中
-     * @param bucketKey
-     * @param scoredSortedItem
+     * 添加 CommonJob 到 延迟任务桶中
+     * @param bucketKey 桶键
+     * @param scoredSortedItem 桶中元素
      */
     public static boolean addToBucket(String bucketKey, ScoredSortedItem scoredSortedItem) {
         try {
@@ -47,8 +47,8 @@ public class Bucket {
 
     /**
      * 从延迟任务桶中获取延迟时间最小的ScoredSortedItem
-     * @param bucketKey
-     * @return
+     * @param bucketKey 桶键
+     * @return 桶中元素
      */
     static ScoredSortedItem getFirstFromBucket(String bucketKey) {
         Set set = JedisTemplate.operate().zrange(bucketKey, 0L, 1L);
@@ -60,7 +60,7 @@ public class Bucket {
 
     /**
      * 从延迟任务桶中删除 jodId
-     * @param scoredSortedItem
+     * @param scoredSortedItem 桶中元素
      */
     public static boolean deleteFormBucket(ScoredSortedItem scoredSortedItem) {
         String key = getDelayBucketKey(scoredSortedItem.getJodId());
@@ -69,8 +69,8 @@ public class Bucket {
 
     /**
      * 从延迟任务桶中删除 jodId
-     * @param bucketKey
-     * @param scoredSortedItem
+     * @param bucketKey 桶键
+     * @param scoredSortedItem 桶中元素
      */
     static boolean deleteFormBucket(String bucketKey, ScoredSortedItem scoredSortedItem) {
         return JedisTemplate.operate().zrem(bucketKey, SerializeUtil.serialize(scoredSortedItem)) > 0;

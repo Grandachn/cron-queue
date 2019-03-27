@@ -26,14 +26,14 @@ public class ReadyQueue {
     /**
      * 从准备队列中获取jodid
      * @param topic 主题
-     * @return
+     * @return json序列化后的job
      */
     static String popFormReadyQueue(String topic) {
         List<String> jobIdList = new ArrayList<>();
 
         while (jobIdList == null || jobIdList.size() == 0){
             try {
-                jobIdList = JedisTemplate.operate().brpop(5, topic);
+                jobIdList = JedisTemplate.operate().brpop(8, topic);
             } catch (Exception e) {
                 log.error("阻塞等待队列异常，" ,e);
             }

@@ -21,10 +21,9 @@ public class CronQueueContext {
     }
 
     private void init(){
-        BucketHandler.start();
         SerializeUtil.setSerializer(new FastJsonSerializer());
-        PersistenceUtil.setPersistencer(new MongoDBPersistencer(true));
-        setPersitence(true);
+        PersistenceUtil.setPersistencer(new MongoDBPersistencer(false));
+        setPersitence(false);
     }
 
     public static CronQueueContext getContext(){
@@ -36,5 +35,9 @@ public class CronQueueContext {
             }
         }
         return cronQueueContext;
+    }
+
+    public void startServer(){
+        BucketHandler.start();
     }
 }

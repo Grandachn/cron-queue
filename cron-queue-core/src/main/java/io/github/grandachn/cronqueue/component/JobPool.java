@@ -31,8 +31,11 @@ public class JobPool {
         //redis获取失败，如果开启持久化，则从持久化数据中取
         if(CronQueueContext.getContext().isPersitence()){
             try {
-                Class clz = Class.forName(JSON.parseObject(PersistenceUtil.get(id)).getString("class"));
-                return (AbstractJob)SerializeUtil.deserialize(PersistenceUtil.get(id), clz);
+                jobJson = PersistenceUtil.get(id);
+                if(jobJson != null && !"".equals(jobJson)){
+                    Class clz = Class.forName(JSON.parseObject(PersistenceUtil.get(id)).getString("class"));
+                    return (AbstractJob)SerializeUtil.deserialize(PersistenceUtil.get(id), clz);
+                }
             } catch (ClassNotFoundException e) {
                 log.error("持久化数据反序列化失败: ", e);
             }
@@ -41,12 +44,12 @@ public class JobPool {
     }
 
     /**
-     * 添加 Job
+     * 添加 CommonJob
      * @param job 任务
      */
     public static boolean addJod(AbstractJob job) {
         if(CronQueueContext.getContext().isPersitence()){
-            if(PersistenceUtil.insertOrUpdate(job)){
+            if(!PersistenceUtil.insertOrUpdate(job)){
                 log.error("将job持久化失败: " + job);
                 return false;
             }
@@ -70,7 +73,7 @@ public class JobPool {
     public static boolean deleteJod(AbstractJob job) {
         //如果持久化删除失败，则不清除redis数据，用于后期比对
         if(CronQueueContext.getContext().isPersitence()){
-            if(PersistenceUtil.delete(job)){
+            if(!PersistenceUtil.delete(job)){
                 log.error("job持久化删除失败: " + job);
                 return false;
             }

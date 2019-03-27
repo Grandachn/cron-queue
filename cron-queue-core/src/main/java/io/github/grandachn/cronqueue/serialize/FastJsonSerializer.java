@@ -10,6 +10,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
  */
 public class FastJsonSerializer implements Serializer{
     static {
+        //配置根据json中存储的class信息反序列化
         ParserConfig.getGlobalInstance().addAccept("io.github.grandachn.cronqueue.");
     }
 

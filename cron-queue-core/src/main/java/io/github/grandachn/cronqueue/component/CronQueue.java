@@ -1,7 +1,6 @@
 package io.github.grandachn.cronqueue.component;
 
 import io.github.grandachn.cronqueue.job.AbstractJob;
-import io.github.grandachn.cronqueue.job.Job;
 import lombok.extern.log4j.Log4j;
 
 import static io.github.grandachn.cronqueue.constant.QueueConstant.*;
@@ -27,7 +26,7 @@ public class CronQueue {
             if (job != null) {
                 long delayTime = job.getExecuteTime();
                 //获取消费超时时间，重新放到延迟任务桶中
-                long reDelayTime = System.currentTimeMillis() + job.getTtrTime() * 1000L;
+                long reDelayTime = System.currentTimeMillis() + job.getTtrTime();
                 job.setExecuteTime(reDelayTime);
                 JobPool.addJod(job);
 

@@ -17,6 +17,7 @@ import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
 
 import java.lang.reflect.Field;
+import java.util.Date;
 
 /**
  * 基于MongoDB的落盘持久化
@@ -35,16 +36,15 @@ public class MongoDBPersistencer implements Persistencer{
     }
 
     private void initConn() {
-        MongoClient mongoClient = new MongoClient( "localhost" , 27017 );
+        MongoClient mongoClient = new MongoClient( "192.168.1.103" , 27017 );
         MongoDatabase mongoDatabase = mongoClient.getDatabase("cronqueue");
         mongoCollection = mongoDatabase.getCollection("JobPool");
-        log.info("Connect to MongoDB successfully");
-
     }
 
     @Override
     public boolean insertOrUpdate(AbstractJob job) {
         Document document = jobToDocument(job);
+        document.append("delete", false);
         if (document.containsKey("id")) {
             UpdateResult result = mongoCollection.replaceOne(Filters.eq("id", job.getId()), document, new ReplaceOptions().upsert(true));
             if(result.getModifiedCount() > 0 || !result.getUpsertedId().isNull()){
@@ -77,7 +77,7 @@ public class MongoDBPersistencer implements Persistencer{
         FindIterable<Document> queryRst = mongoCollection.find(Filters.eq("id", jobId));
         MongoCursor<Document> cursor = queryRst.iterator();
         if (cursor.hasNext()){
-            return cursor.next().toJson(new JsonWriterSettings(JsonMode.RELAXED));
+            return cursor.next().toJson(JsonWriterSettings.builder().outputMode(JsonMode.RELAXED).build());
         }
         return "";
     }
@@ -94,6 +94,7 @@ public class MongoDBPersistencer implements Persistencer{
         }
         //添加job的实际class
         document.append("class", job.getClass().getName());
+        document.append("createTime", new Date());
         return document;
     }
 }
