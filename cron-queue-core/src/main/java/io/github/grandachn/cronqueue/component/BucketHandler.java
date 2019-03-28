@@ -28,8 +28,8 @@ public class BucketHandler {
                     log.info(BUCKET_KEY_PREFIX + finalI + " handler thread is start");
                     for(;;) {
                         try {
-                            String delayBucketKey = BUCKET_KEY_PREFIX + finalI;
-                            ScoredSortedItem item = Bucket.getFirstFromBucket(delayBucketKey);
+                            String bucketKey = BUCKET_KEY_PREFIX + finalI;
+                            ScoredSortedItem item = Bucket.getFirstFromBucket(bucketKey);
                             //没有任务
                             if (item == null) {
                                 TimeUnit.MILLISECONDS.sleep(100);
@@ -45,17 +45,17 @@ public class BucketHandler {
 
                             //延迟任务元数据不存在
                             if (jod == null) {
-                                Bucket.deleteFormBucket(delayBucketKey,item);
+                                Bucket.deleteFormBucket(bucketKey,item);
                                 continue;
                             }
 
                             //再次确认延时时间是否到了
                             if (jod.getExecuteTime() > System.currentTimeMillis()) {
                                 //删除旧的
-                                Bucket.deleteFormBucket(delayBucketKey,item);
-                                //更新一下delayBucket中的数据
-                                Bucket.addToBucket(delayBucketKey, new ScoredSortedItem(jod.getId(), jod.getExecuteTime()));
-                            } else if (Bucket.deleteFormBucket(delayBucketKey,item)){
+                                Bucket.deleteFormBucket(bucketKey,item);
+                                //更新一下Bucket中的数据
+                                Bucket.addToBucket(bucketKey, new ScoredSortedItem(jod.getId(), jod.getExecuteTime()));
+                            } else if (Bucket.deleteFormBucket(bucketKey,item)){
                                 //只有成功删除的线程才能将其放到ReadyQueue
                                 ReadyQueue.pushToReadyQueue(READY_QUEUE_TOPIC_PREFIX + jod.getTopic(),jod.getId());
                             }

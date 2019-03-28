@@ -17,7 +17,7 @@ public class JedisConnectPoll {
     //redis获取链接的并发锁
     private static ReentrantLock redisPollLock = new ReentrantLock();
     //连接redis实例的ip
-    private static final String REDIS_ADDRESS = "192.168.1.103";
+    private static final String REDIS_ADDRESS = "192.168.1.188";
     //连接redis实例的端口
     private static final int PORT = 6379;
     //多线程环境中,连接实例的最大数,如果设为-1则无上线,建议设置,否则有可能导致资源耗尽

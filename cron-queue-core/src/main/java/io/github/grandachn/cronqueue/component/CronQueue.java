@@ -24,7 +24,7 @@ public class CronQueue {
         if (jodId != null) {
             AbstractJob job = JobPool.getJodById(jodId);
             if (job != null) {
-                long delayTime = job.getExecuteTime();
+                long execTime = job.getExecuteTime();
                 //获取消费超时时间，重新放到延迟任务桶中
                 long reDelayTime = System.currentTimeMillis() + job.getTtrTime();
                 job.setExecuteTime(reDelayTime);
@@ -34,7 +34,7 @@ public class CronQueue {
                 Bucket.addToBucket(item);
 
                 //返回的时候设置回
-                job.setExecuteTime(delayTime);
+                job.setExecuteTime(execTime);
                 return job;
             }
         }
@@ -77,7 +77,7 @@ public class CronQueue {
      * 直接结束该jod
      * @param job 任务
      */
-    public void stop(AbstractJob job) {
+    public static void stop(AbstractJob job) {
         AbstractJob jod = JobPool.getJodById(job.getId());
 
         if (jod == null){
