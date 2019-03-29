@@ -30,7 +30,7 @@ public class Main {
         CronQueueContext cronQueueContext = CronQueueContext.getContext();
         cronQueueContext.setPersitence(false);
         cronQueueContext.startServer();
-        CronQueue.push(CronJob.builder().id("133").topic("cronQueueTest").message("hello222").cronPattern("0/10 * * * * ? ").ttrTime(100 * 1000 * 1000).build());
+        CronQueue.push(CronJob.builder().id("133").topic("cronQueueTest").message("hello222").cronPattern("0/10 * * * * ? ").ttrTime(100 * 1000).build());
         final CronJob[] cronJob = new CronJob[1];
         Thread thread = new Thread(new Runnable() {
             @Override

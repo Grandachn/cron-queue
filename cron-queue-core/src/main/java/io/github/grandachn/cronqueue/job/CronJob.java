@@ -4,7 +4,6 @@ import io.github.grandachn.cronqueue.component.Bucket;
 import io.github.grandachn.cronqueue.component.JobPool;
 import io.github.grandachn.cronqueue.component.ScoredSortedItem;
 import io.github.grandachn.cronqueue.util.CronUtils;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,13 +23,11 @@ public class CronJob extends AbstractJob implements Serializable{
     private String cronPattern;
 
 
-    @Builder
-    public CronJob(String id, String topic, long executeTime, long ttrTime, String message, String cronPattern) {
-        super(id, topic, executeTime, ttrTime, message);
+    public CronJob(String id, String topic, long ttrTime, String message, String cronPattern) {
+        super(id, topic, 0, ttrTime, message);
         this.cronPattern = cronPattern;
         this.executeTime = CronUtils.getNextExecTime(cronPattern).getTime();
     }
-
 
     @Override
     public void finish() {
@@ -51,6 +48,54 @@ public class CronJob extends AbstractJob implements Serializable{
         //写回Bucket中等待
         item = new ScoredSortedItem(this.getId(), this.getExecuteTime());
         Bucket.addToBucket(item);
+    }
+
+    public static Builder builder(){
+        return new Builder();
+    }
+
+    public static final class Builder {
+        String id;
+        String topic;
+        long ttrTime;
+        String message;
+        private String cronPattern;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder topic(String topic) {
+            this.topic = topic;
+            return this;
+        }
+
+        public Builder ttrTime(long ttrTime) {
+            this.ttrTime = ttrTime;
+            return this;
+        }
+
+        public Builder cronPattern(String cronPattern) {
+            this.cronPattern = cronPattern;
+            return this;
+        }
+
+        public Builder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public CronJob build() {
+            CronJob cronJob = new CronJob();
+            cronJob.setId(id);
+            cronJob.setTopic(topic);
+            cronJob.setExecuteTime(CronUtils.getNextExecTime(cronPattern).getTime());
+            cronJob.setTtrTime(ttrTime);
+            cronJob.setCronPattern(cronPattern);
+            cronJob.setMessage(message);
+            return cronJob;
+        }
     }
 
 }
