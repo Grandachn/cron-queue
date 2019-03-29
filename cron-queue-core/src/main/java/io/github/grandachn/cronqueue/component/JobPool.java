@@ -7,6 +7,7 @@ import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import io.github.grandachn.cronqueue.redis.JedisTemplate;
 import io.github.grandachn.cronqueue.serialize.SerializeUtil;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
 import static io.github.grandachn.cronqueue.constant.QueueConstant.QUEUE_JOB_POOL;
 
@@ -15,7 +16,7 @@ import static io.github.grandachn.cronqueue.constant.QueueConstant.QUEUE_JOB_POO
  * @Author by guanda
  * @Date 2019/3/12 11:30
  */
-@Log4j
+@Slf4j
 public class JobPool {
 
     /**
@@ -23,7 +24,7 @@ public class JobPool {
      * @param id 任务id
      * @return 任务
      */
-    static AbstractJob getJodById(String id) {
+    public static AbstractJob getJodById(String id) {
         String jobJson = JedisTemplate.operate().hget(QUEUE_JOB_POOL, id);
         if (jobJson != null && !"".equals(jobJson)){
             return (AbstractJob)SerializeUtil.deserialize(jobJson);
@@ -81,9 +82,10 @@ public class JobPool {
 
         try {
             JedisTemplate.operate().hdel(QUEUE_JOB_POOL, job.getId());
+            log.info("JobPool删除job成功, jobId:{}", job.getId());
             return true;
         }catch (Exception e){
-            log.error("JobPool删除job失败， jobId： " + job.getId() , e);
+            log.error("JobPool删除job失败，jobId{} ", job.getId() , e);
         }
         return false;
     }

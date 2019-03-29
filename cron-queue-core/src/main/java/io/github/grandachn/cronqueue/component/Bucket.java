@@ -1,9 +1,16 @@
 package io.github.grandachn.cronqueue.component;
 
+import io.github.grandachn.cronqueue.redis.JedisConnectPoll;
 import io.github.grandachn.cronqueue.redis.JedisTemplate;
 import io.github.grandachn.cronqueue.serialize.SerializeUtil;
 import lombok.extern.log4j.Log4j;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import static io.github.grandachn.cronqueue.constant.QueueConstant.BUCKET_KEY_PREFIX;
@@ -18,7 +25,7 @@ import static io.github.grandachn.cronqueue.constant.QueueConstant.BUCKET_NUM;
 public class Bucket {
 
     /**
-     * 添加 CommonJob 到 延迟任务桶中
+     * 添加 CommonJob 到 任务桶中
      * @param scoredSortedItem 桶中元素
      */
     public static boolean addToBucket(ScoredSortedItem scoredSortedItem) {
@@ -32,7 +39,7 @@ public class Bucket {
     }
 
     /**
-     * 添加 CommonJob 到 延迟任务桶中
+     * 添加 CommonJob 到 任务桶中
      * @param bucketKey 桶键
      * @param scoredSortedItem 桶中元素
      */
@@ -46,7 +53,7 @@ public class Bucket {
     }
 
     /**
-     * 从延迟任务桶中获取延迟时间最小的ScoredSortedItem
+     * 从任务桶中获取延迟时间最小的ScoredSortedItem
      * @param bucketKey 桶键
      * @return 桶中元素
      */
@@ -59,7 +66,33 @@ public class Bucket {
     }
 
     /**
-     * 从延迟任务桶中删除 jodId
+     * 从任务桶中获取延迟时间最小的ScoredSortedItem
+     * @param bucketKeys 桶键
+     * @return 桶中元素
+     */
+    static List<ScoredSortedItem> getFirstFromBucketsPipeline (List<String> bucketKeys) {
+        List<ScoredSortedItem> scoredSortedItems = new LinkedList<>();
+        Jedis jedis = JedisConnectPoll.getJedis();
+        Pipeline pipe =  jedis.pipelined();
+        pipe.clear();
+        List<Response<Set<String>>> responses = new LinkedList<>();
+        for (String bucketKey : bucketKeys){
+            responses.add(pipe.zrange(bucketKey, 0L, 1L));
+        }
+        pipe.sync();
+        for(Response<Set<String>> response : responses){
+            Set<String> set = response.get();
+            if (set.size() > 0) {
+                scoredSortedItems.add((ScoredSortedItem) SerializeUtil.deserialize(set.toArray()[0].toString()));
+            }
+        }
+        pipe.close();
+        jedis.close();
+        return scoredSortedItems;
+    }
+
+    /**
+     * 从任务桶中删除 jodId
      * @param scoredSortedItem 桶中元素
      */
     public static boolean deleteFormBucket(ScoredSortedItem scoredSortedItem) {
@@ -68,7 +101,7 @@ public class Bucket {
     }
 
     /**
-     * 从延迟任务桶中删除 jodId
+     * 从任务桶中删除 jodId
      * @param bucketKey 桶键
      * @param scoredSortedItem 桶中元素
      */
@@ -76,7 +109,7 @@ public class Bucket {
         return JedisTemplate.operate().zrem(bucketKey, SerializeUtil.serialize(scoredSortedItem)) > 0;
     }
 
-    private static String getDelayBucketKey(String jodId) {
+    public static String getDelayBucketKey(String jodId) {
         return BUCKET_KEY_PREFIX + ( Math.abs(jodId.hashCode()) % BUCKET_NUM);
     }
 }

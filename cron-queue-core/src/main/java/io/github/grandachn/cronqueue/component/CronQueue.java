@@ -1,6 +1,7 @@
 package io.github.grandachn.cronqueue.component;
 
 import io.github.grandachn.cronqueue.job.AbstractJob;
+import io.github.grandachn.cronqueue.redis.DistributedRedisLock;
 import lombok.extern.log4j.Log4j;
 
 import static io.github.grandachn.cronqueue.constant.QueueConstant.*;
@@ -84,9 +85,11 @@ public class CronQueue {
             return;
         }
         //正常结束
+        DistributedRedisLock.acquire(job.getId());
         JobPool.deleteJod(job);
         ScoredSortedItem item = new ScoredSortedItem(jod.getId(), jod.getExecuteTime());
         Bucket.deleteFormBucket(item);
+        DistributedRedisLock.release(job.getId());
     }
 }
 

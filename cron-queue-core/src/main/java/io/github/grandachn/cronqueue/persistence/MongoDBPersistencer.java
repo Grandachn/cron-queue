@@ -36,7 +36,8 @@ public class MongoDBPersistencer implements Persistencer{
     }
 
     private void initConn() {
-        MongoClient mongoClient = new MongoClient( "192.168.1.188" , 27017 );
+//        MongoClient mongoClient = new MongoClient( "192.168.1.188" , 27017 );
+        MongoClient mongoClient = new MongoClient( "127.0.0.1" , 27017 );
         MongoDatabase mongoDatabase = mongoClient.getDatabase("cronqueue");
         mongoCollection = mongoDatabase.getCollection("JobPool");
     }

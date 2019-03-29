@@ -3,6 +3,7 @@ package io.github.grandachn.cronqueue.job;
 import io.github.grandachn.cronqueue.component.Bucket;
 import io.github.grandachn.cronqueue.component.JobPool;
 import io.github.grandachn.cronqueue.component.ScoredSortedItem;
+import io.github.grandachn.cronqueue.redis.DistributedRedisLock;
 import io.github.grandachn.cronqueue.util.CronUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -44,10 +45,15 @@ public class CronJob extends AbstractJob implements Serializable{
 
         this.setExecuteTime(time);
         //写回JobPool
-        JobPool.addJod(this);
-        //写回Bucket中等待
-        item = new ScoredSortedItem(this.getId(), this.getExecuteTime());
-        Bucket.addToBucket(item);
+        //加分布式锁做检查，和stop对应
+        DistributedRedisLock.acquire(this.getId());
+        if(JobPool.getJodById(this.id) != null){
+            JobPool.addJod(this);
+            //写回Bucket中等待
+            item = new ScoredSortedItem(this.getId(), this.getExecuteTime());
+            Bucket.addToBucket(item);
+        }
+        DistributedRedisLock.release(this.getId());
     }
 
     public static Builder builder(){

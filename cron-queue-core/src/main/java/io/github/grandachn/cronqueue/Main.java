@@ -6,7 +6,9 @@ import io.github.grandachn.cronqueue.job.CronJob;
 import io.github.grandachn.cronqueue.job.RepeateJob;
 import lombok.extern.log4j.Log4j;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -30,33 +32,30 @@ public class Main {
         CronQueueContext cronQueueContext = CronQueueContext.getContext();
         cronQueueContext.setPersitence(false);
         cronQueueContext.startServer();
-        CronQueue.push(CronJob.builder().id("133").topic("cronQueueTest").message("hello222").cronPattern("0/10 * * * * ? ").ttrTime(100 * 1000).build());
+        CronQueue.push(CronJob.builder().id("123").topic("cronQueueTest").message("hello222").cronPattern("0/4 * * * * ? ").ttrTime(100 * 1000).build());
         final CronJob[] cronJob = new CronJob[1];
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true){
-                    CronJob cronJob = (CronJob) CronQueue.pop("cronQueueTest");
-                    if(cronJob == null){
-                        try {
-                            Thread.sleep(100);
-                            System.out.println("sleep");
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        continue;
+        Thread thread = new Thread(() -> {
+            while(true){
+                CronJob cronJob1 = (CronJob) CronQueue.pop("cronQueueTest");
+                if(cronJob1 == null){
+                    try {
+                        Thread.sleep(100);
+                        System.out.println("sleep");
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                    log.info(cronJob.getMessage() + "---" + new Date());
-                    CronQueue.finish(cronJob);
+                    continue;
                 }
+                log.info(cronJob1.getMessage() + "---" + new Date());
+                CronQueue.finish(cronJob1);
             }
         });
         thread.start();
 
-
-//        TimeUnit.SECONDS.sleep(50);
-//        CronQueue.stop(CronJob.builder().id("12333").topic("cronQueueTest").message("hello").cronPattern("0/10 * * * * ?").build());
-//        System.out.println("stop");
+        TimeUnit.SECONDS.sleep(60);
+        CronQueue.stop(CronJob.builder().id("123").topic("cronQueueTest").message("hello").cronPattern("0/10 * * * * ?").build());
+        CronQueue.stop(CronJob.builder().id("133").topic("cronQueueTest").message("hello").cronPattern("0/10 * * * * ?").build());
+        System.out.println("stop");
 
 
 //        CronQueueContext cronQueueContext = CronQueueContext.getContext();
