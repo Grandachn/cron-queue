@@ -1,21 +1,17 @@
 package io.github.grandachn.cronqueue;
 
 import io.github.grandachn.cronqueue.component.CronQueue;
-import io.github.grandachn.cronqueue.job.CommonJob;
 import io.github.grandachn.cronqueue.job.CronJob;
-import io.github.grandachn.cronqueue.job.RepeateJob;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @Author by guanda
  * @Date 2019/3/15 16:00
  */
-@Log4j
+@Slf4j
 public class Main {
     public static void main(String[] args) throws InterruptedException {
 //        try(Jedis jedis = JedisConnectPoll.getJedis()){
@@ -32,8 +28,7 @@ public class Main {
         CronQueueContext cronQueueContext = CronQueueContext.getContext();
         cronQueueContext.setPersitence(false);
         cronQueueContext.startServer();
-        CronQueue.push(CronJob.builder().id("123").topic("cronQueueTest").message("hello222").cronPattern("0/4 * * * * ? ").ttrTime(100 * 1000).build());
-        final CronJob[] cronJob = new CronJob[1];
+        CronQueue.push(CronJob.builder().id("1231").topic("cronQueueTest").message("hello222").cronPattern("0/5 * * * * ? ").ttrTime(100 * 1000).build());
         Thread thread = new Thread(() -> {
             while(true){
                 CronJob cronJob1 = (CronJob) CronQueue.pop("cronQueueTest");
@@ -52,8 +47,8 @@ public class Main {
         });
         thread.start();
 
-        TimeUnit.SECONDS.sleep(60);
-        CronQueue.stop(CronJob.builder().id("123").topic("cronQueueTest").message("hello").cronPattern("0/10 * * * * ?").build());
+        TimeUnit.SECONDS.sleep(20);
+        CronQueue.stop(CronJob.builder().id("1231").topic("cronQueueTest").message("hello").cronPattern("0/10 * * * * ?").build());
         CronQueue.stop(CronJob.builder().id("133").topic("cronQueueTest").message("hello").cronPattern("0/10 * * * * ?").build());
         System.out.println("stop");
 

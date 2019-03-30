@@ -2,16 +2,16 @@ package io.github.grandachn.cronqueue.component;
 
 import io.github.grandachn.cronqueue.job.AbstractJob;
 import io.github.grandachn.cronqueue.redis.DistributedRedisLock;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
-import static io.github.grandachn.cronqueue.constant.QueueConstant.*;
+import static io.github.grandachn.cronqueue.constant.QueueConstant.READY_QUEUE_TOPIC_PREFIX;
 
 /**
  *  延迟消息队列
  * @Author by guanda
  * @Date 2019/3/15 16:43
  */
-@Log4j
+@Slf4j
 public class CronQueue {
 
     /**
@@ -85,11 +85,12 @@ public class CronQueue {
             return;
         }
         //正常结束
-        DistributedRedisLock.acquire(job.getId());
+        //写锁
+        DistributedRedisLock.acquireWriteLock(job.getId());
         JobPool.deleteJod(job);
         ScoredSortedItem item = new ScoredSortedItem(jod.getId(), jod.getExecuteTime());
         Bucket.deleteFormBucket(item);
-        DistributedRedisLock.release(job.getId());
+        DistributedRedisLock.releaseWriteLock(job.getId());
     }
 }
 

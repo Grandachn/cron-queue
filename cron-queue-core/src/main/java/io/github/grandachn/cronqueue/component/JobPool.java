@@ -6,7 +6,6 @@ import io.github.grandachn.cronqueue.job.AbstractJob;
 import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import io.github.grandachn.cronqueue.redis.JedisTemplate;
 import io.github.grandachn.cronqueue.serialize.SerializeUtil;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 
 import static io.github.grandachn.cronqueue.constant.QueueConstant.QUEUE_JOB_POOL;

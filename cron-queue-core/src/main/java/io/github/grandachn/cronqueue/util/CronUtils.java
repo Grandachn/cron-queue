@@ -1,13 +1,13 @@
 package io.github.grandachn.cronqueue.util;
 
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.TriggerUtils;
 import org.quartz.impl.triggers.CronTriggerImpl;
 
 import java.text.ParseException;
 import java.util.Date;
 
-@Log4j
+@Slf4j
 public class CronUtils {
     public static Date getNextExecTime(String cronPattern) {
         CronTriggerImpl cronTriggerImpl = new CronTriggerImpl();

@@ -2,7 +2,7 @@ package io.github.grandachn.cronqueue.component;
 
 import io.github.grandachn.cronqueue.job.AbstractJob;
 import io.github.grandachn.cronqueue.redis.DistributedRedisLock;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,9 +17,9 @@ import static io.github.grandachn.cronqueue.constant.QueueConstant.*;
  * @Author by guanda
  * @Date 2019/3/12 15:16
  */
-@Log4j
+@Slf4j
 public class BucketHandler {
-    private static final int bossThreadNum = 1;
+    private static final int bossThreadNum = 2;
 
     private static ExecutorService bossThreadGroup = Executors.newFixedThreadPool(bossThreadNum, new RenameThreadFactory("BucketHandlerBossThreadGroup"));
 
@@ -82,19 +82,21 @@ public class BucketHandler {
                                         DistributedRedisLock.release("bucket_handler_" + scoredSortedItem.getJodId());
                                     }
                                 });
+                            }else {
+                                countDownLatch.countDown();
                             }
                         }
                         try {
                             countDownLatch.await();
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            log.error("bossThreadGroup error ",e);
                         }
                     }else {
                         //Bucket中没有job
                         try {
                             TimeUnit.MILLISECONDS.sleep(50);
                         } catch (InterruptedException e) {
-                            log.error("bossThreadGroup error：",e);
+                            log.error("bossThreadGroup error ",e);
                         }
                     }
                 }

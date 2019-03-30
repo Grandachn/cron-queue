@@ -1,18 +1,17 @@
 package io.github.grandachn.cronqueue.component;
 
 import io.github.grandachn.cronqueue.redis.JedisTemplate;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 存放可以消费的jod
  * @Author by guanda
  * @Date 2019/3/12 14:15
  */
-@Log4j
+@Slf4j
 public class ReadyQueue {
     /**
      * 添加jodid到准备队列

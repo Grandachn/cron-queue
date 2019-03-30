@@ -45,15 +45,15 @@ public class CronJob extends AbstractJob implements Serializable{
 
         this.setExecuteTime(time);
         //写回JobPool
-        //加分布式锁做检查，和stop对应
-        DistributedRedisLock.acquire(this.getId());
+        //加分布式读锁做检查，和stop()的写锁相对应
+        DistributedRedisLock.acquireReadLock(this.getId());
         if(JobPool.getJodById(this.id) != null){
             JobPool.addJod(this);
             //写回Bucket中等待
             item = new ScoredSortedItem(this.getId(), this.getExecuteTime());
             Bucket.addToBucket(item);
         }
-        DistributedRedisLock.release(this.getId());
+        DistributedRedisLock.releaseReadLock(this.getId());
     }
 
     public static Builder builder(){

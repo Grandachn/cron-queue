@@ -3,6 +3,7 @@ package io.github.grandachn.cronqueue.redis;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RLock;
+import org.redisson.api.RReadWriteLock;
 import org.redisson.config.Config;
 
 import java.util.concurrent.TimeUnit;
@@ -21,7 +22,8 @@ public class DistributedRedisLock {
 
     static {
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://10.11.9.123:6379").setPassword("crs-e7mw5os6:c2G1t2BVr5#B");
+//        config.useSingleServer().setAddress("redis://10.11.9.123:6379").setPassword("crs-e7mw5os6:c2G1t2BVr5#B");
+        config.useSingleServer().setAddress("redis://192.168.1.188:6379");
         redisson = (Redisson) Redisson.create(config);
     }
 
@@ -70,4 +72,53 @@ public class DistributedRedisLock {
         mylock.unlock();
         log.debug("[redisLock unlock] lockKey={}, thread={}", key, Thread.currentThread().getName());
     }
+
+    //锁的释放
+    public static void releaseReadLock(String lockName){
+        //必须是和加锁时的同一个key
+        String key = LOCK_TITLE + lockName;
+        //获取所对象
+        RReadWriteLock mylock = redisson.getReadWriteLock(key);
+        //释放锁（解锁）
+        mylock.readLock().unlock();
+        log.debug("[redisReadLock unlock] lockKey={}, thread={}", key, Thread.currentThread().getName());
+    }
+
+    //锁的释放
+    public static void releaseWriteLock(String lockName){
+        //必须是和加锁时的同一个key
+        String key = LOCK_TITLE + lockName;
+        //获取所对象
+        RReadWriteLock mylock = redisson.getReadWriteLock(key);
+        //释放锁（解锁）
+        mylock.writeLock().unlock();
+        log.debug("[redisWriteLock unlock] lockKey={}, thread={}", key, Thread.currentThread().getName());
+    }
+
+    //加读锁
+    public static boolean acquireReadLock(String lockName){
+        //声明key对象
+        String key = LOCK_TITLE + lockName;
+        //获取锁对象
+        RReadWriteLock lock = redisson.getReadWriteLock(key);
+        //加锁，并且设置锁过期时间，防止死锁的产生
+        lock.readLock().lock(2, TimeUnit.MINUTES);
+
+        log.debug("[redisReadLock lock] lockKey={}, thread={}", key, Thread.currentThread().getName());
+        return true;
+    }
+
+    //加读锁
+    public static boolean acquireWriteLock(String lockName){
+        //声明key对象
+        String key = LOCK_TITLE + lockName;
+        //获取锁对象
+        RReadWriteLock lock = redisson.getReadWriteLock(key);
+        //加锁，并且设置锁过期时间，防止死锁的产生
+        lock.writeLock().lock(2, TimeUnit.MINUTES);
+
+        log.debug("[redisWriteLock lock] lockKey={}, thread={}", key, Thread.currentThread().getName());
+        return true;
+    }
+
 }

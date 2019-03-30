@@ -3,9 +3,8 @@ package io.github.grandachn.cronqueue.component;
 import io.github.grandachn.cronqueue.redis.JedisConnectPoll;
 import io.github.grandachn.cronqueue.redis.JedisTemplate;
 import io.github.grandachn.cronqueue.serialize.SerializeUtil;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
@@ -21,7 +20,7 @@ import static io.github.grandachn.cronqueue.constant.QueueConstant.BUCKET_NUM;
  * @Author by guanda
  * @Date 2019/3/12 11:56
  */
-@Log4j
+@Slf4j
 public class Bucket {
 
     /**
@@ -33,7 +32,7 @@ public class Bucket {
             String key = getDelayBucketKey(scoredSortedItem.getJodId());
             return JedisTemplate.operate().zadd(key, scoredSortedItem.getExecuteTime(), SerializeUtil.serialize(scoredSortedItem)) > 0;
         }catch (Exception e){
-            log.error("将scoredSortedItem写入延迟任务桶中失败: " + scoredSortedItem, e);
+            log.error("将scoredSortedItem写入延迟任务桶中失败: {}", scoredSortedItem, e);
         }
         return false;
     }
@@ -47,7 +46,7 @@ public class Bucket {
         try {
             return JedisTemplate.operate().zadd(bucketKey, scoredSortedItem.getExecuteTime(), SerializeUtil.serialize(scoredSortedItem)) > 0;
         }catch (Exception e){
-            log.error("将scoredSortedItem写入延迟任务桶中失败: " + scoredSortedItem, e);
+            log.error("将scoredSortedItem写入延迟任务桶中失败: {}" , scoredSortedItem, e);
         }
         return false;
     }

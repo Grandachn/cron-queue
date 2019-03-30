@@ -17,8 +17,8 @@ public class JedisConnectPoll {
     //redis获取链接的并发锁
     private static ReentrantLock redisPollLock = new ReentrantLock();
     //连接redis实例的ip
-//    private static final String REDIS_ADDRESS = "192.168.1.188";
-    private static final String REDIS_ADDRESS = "10.11.9.123";
+    private static final String REDIS_ADDRESS = "192.168.1.188";
+//    private static final String REDIS_ADDRESS = "10.11.9.123";
     //连接redis实例的端口
     private static final int PORT = 6379;
     //多线程环境中,连接实例的最大数,如果设为-1则无上线,建议设置,否则有可能导致资源耗尽
@@ -59,8 +59,8 @@ public class JedisConnectPoll {
             config.setMinEvictableIdleTimeMillis(METM);
             config.setSoftMinEvictableIdleTimeMillis(SMETM);
             config.setTimeBetweenEvictionRunsMillis(TBERM);
-            jedisPool = new JedisPool(config, REDIS_ADDRESS, PORT, TIME_OUT, PASSWORD);
-//            jedisPool = new JedisPool(config, REDIS_ADDRESS, PORT, TIME_OUT);
+//            jedisPool = new JedisPool(config, REDIS_ADDRESS, PORT, TIME_OUT, PASSWORD);
+            jedisPool = new JedisPool(config, REDIS_ADDRESS, PORT, TIME_OUT);
         } catch (Exception e) {
             log.error("initial JedisPoll fail:",e);
         }
