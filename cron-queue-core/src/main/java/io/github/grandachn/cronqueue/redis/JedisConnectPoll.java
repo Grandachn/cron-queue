@@ -1,6 +1,6 @@
 package io.github.grandachn.cronqueue.redis;
 
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @Author by guanda
  * @Date 2019/3/15 14:42
  */
-@Log4j
+@Slf4j
 public class JedisConnectPoll {
 
     //redis获取链接的并发锁
@@ -62,7 +62,7 @@ public class JedisConnectPoll {
 //            jedisPool = new JedisPool(config, REDIS_ADDRESS, PORT, TIME_OUT, PASSWORD);
             jedisPool = new JedisPool(config, REDIS_ADDRESS, PORT, TIME_OUT);
         } catch (Exception e) {
-            log.error("initial JedisPoll fail:",e);
+            log.error("initial JedisPoll fail: {}",e);
         }
     }
 

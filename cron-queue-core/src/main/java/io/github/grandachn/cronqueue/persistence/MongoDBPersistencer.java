@@ -11,7 +11,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import io.github.grandachn.cronqueue.job.AbstractJob;
 import io.github.grandachn.cronqueue.util.ReflectionUtils;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
@@ -24,7 +24,7 @@ import java.util.Date;
  * @Author by guanda
  * @Date 2019/3/27 16:10
  */
-@Log4j
+@Slf4j
 public class MongoDBPersistencer implements Persistencer{
     private MongoCollection<Document> mongoCollection;
 
