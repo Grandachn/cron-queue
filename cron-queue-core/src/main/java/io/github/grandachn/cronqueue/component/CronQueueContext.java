@@ -1,6 +1,5 @@
-package io.github.grandachn.cronqueue;
+package io.github.grandachn.cronqueue.component;
 
-import io.github.grandachn.cronqueue.component.BucketHandler;
 import io.github.grandachn.cronqueue.persistence.MongoDBPersistencer;
 import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import io.github.grandachn.cronqueue.serialize.FastJsonSerializer;
@@ -39,5 +38,14 @@ public class CronQueueContext {
 
     public void startServer(){
         BucketHandler.start();
+        BucketHandler.minotor();
+    }
+
+    public void stopServer(){
+        BucketHandler.stop();
+    }
+
+    public void restartServer(){
+        BucketHandler.restart();
     }
 }

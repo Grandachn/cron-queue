@@ -1,7 +1,6 @@
 package io.github.grandachn.cronqueue.component;
 
 import com.alibaba.fastjson.JSON;
-import io.github.grandachn.cronqueue.CronQueueContext;
 import io.github.grandachn.cronqueue.job.AbstractJob;
 import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import io.github.grandachn.cronqueue.redis.JedisTemplate;

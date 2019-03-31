@@ -22,11 +22,11 @@ public class JedisConnectPoll {
     //连接redis实例的端口
     private static final int PORT = 6379;
     //多线程环境中,连接实例的最大数,如果设为-1则无上线,建议设置,否则有可能导致资源耗尽
-    private static final int MAX_ACTIVE = 8;
+    private static final int MAX_ACTIVE = 160;
     //在多线程环境中,连接池中最大空闲连接数,单线程环境没有实际意义
-    private static final int MAX_OLDE = 4;
+    private static final int MAX_OLDE = 128;
     //在多线程环境中,连接池中最小空闲连接数
-    private static final int MIN_OLDE = 1;
+    private static final int MIN_OLDE = 8;
     //多长时间将空闲线程进行回收,单位毫秒
     private static final int METM = 2000;
     //对象空闲多久后逐出, 当空闲时间>该值 且 空闲连接>最大空闲数 时直接逐出,不再根据MinEvictableIdleTimeMillis判断 (默认逐出策略)
