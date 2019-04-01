@@ -1,10 +1,9 @@
 package io.github.grandachn.cronqueue.component;
 
+import io.github.grandachn.cronqueue.constant.QueueConstant;
 import io.github.grandachn.cronqueue.job.AbstractJob;
 import io.github.grandachn.cronqueue.redis.DistributedRedisLock;
 import lombok.extern.slf4j.Slf4j;
-
-import static io.github.grandachn.cronqueue.constant.QueueConstant.READY_QUEUE_TOPIC_PREFIX;
 
 /**
  *  延迟消息队列
@@ -19,8 +18,8 @@ public class CronQueue {
      * @param topic 主题
      * @return 任务
      */
-    public static AbstractJob pop(String topic) {
-        topic = READY_QUEUE_TOPIC_PREFIX + topic;
+    public AbstractJob pop(String topic) {
+        topic = QueueConstant.READY_QUEUE_TOPIC_PREFIX + topic;
         String jodId = ReadyQueue.popFormReadyQueue(topic);
         if (jodId != null) {
             AbstractJob job = JobPool.getJodById(jodId);
@@ -46,7 +45,7 @@ public class CronQueue {
      * 添加延迟任务到延迟队列
      * @param job 任务
      */
-    public static void push(AbstractJob job) {
+    public void push(AbstractJob job) {
         AbstractJob jobOld = JobPool.getJodById(job.getId());
         if(jobOld != null){
             Bucket.deleteFormBucket(ScoredSortedItem.builder()
@@ -65,7 +64,7 @@ public class CronQueue {
      * 任务完成需要显示调用此方法结束调用超时补偿
      * @param job 任务
      */
-    public static void finish(AbstractJob job) {
+    public void finish(AbstractJob job) {
         AbstractJob jod = JobPool.getJodById(job.getId());
         if (jod == null){
             return;
@@ -78,7 +77,7 @@ public class CronQueue {
      * 直接结束该jod
      * @param job 任务
      */
-    public static void stop(AbstractJob job) {
+    public void stop(AbstractJob job) {
         AbstractJob jod = JobPool.getJodById(job.getId());
 
         if (jod == null){

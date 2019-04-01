@@ -1,5 +1,6 @@
 package io.github.grandachn.cronqueue.component;
 
+import io.github.grandachn.cronqueue.constant.QueueConstant;
 import io.github.grandachn.cronqueue.job.AbstractJob;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,8 +12,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static io.github.grandachn.cronqueue.constant.QueueConstant.*;
 
 /**
  * 扫描延迟任务桶中的任务，将到时间的任务放到对应topic的准备队列中
@@ -41,7 +40,6 @@ public class BucketHandler {
             new LinkedBlockingQueue<>(),
             new RenameThreadFactory("monitorThread"));
 
-
     private static volatile boolean workingThreadGroupIsLive = true;
 
     private static volatile AtomicLong noPointTime = new AtomicLong(0);
@@ -53,14 +51,14 @@ public class BucketHandler {
             final int threadNo = i;
             workingThreadGroup.execute(() -> {
                 List<String> bucketKeys = new LinkedList<>();
-                if(workingThreadNum.get() < BUCKET_NUM){
-                    for (int j = 0; j < BUCKET_NUM; j++) {
-                        if (j % (workingThreadNum.get() % BUCKET_NUM) == threadNo % BUCKET_NUM) {
-                            bucketKeys.add(BUCKET_KEY_PREFIX + j);
+                if(workingThreadNum.get() < QueueConstant.BUCKET_NUM){
+                    for (int j = 0; j < QueueConstant.BUCKET_NUM; j++) {
+                        if (j % (workingThreadNum.get() % QueueConstant.BUCKET_NUM) == threadNo % QueueConstant.BUCKET_NUM) {
+                            bucketKeys.add(QueueConstant.BUCKET_KEY_PREFIX + j);
                         }
                     }
                 }else {
-                    bucketKeys.add(BUCKET_KEY_PREFIX + (threadNo % BUCKET_NUM));
+                    bucketKeys.add(QueueConstant.BUCKET_KEY_PREFIX + (threadNo % QueueConstant.BUCKET_NUM));
                 }
 
                 log.info("workingThreadGroup thread_" + threadNo + " is start：" + bucketKeys);
@@ -91,7 +89,7 @@ public class BucketHandler {
                                 Bucket.addToBucket(Bucket.getDelayBucketKey(scoredSortedItem.getJodId()), new ScoredSortedItem(jod.getId(), jod.getExecuteTime()));
                             } else if (Bucket.deleteFormBucket(scoredSortedItem)){
                                 //只有成功删除的线程才能将其放到ReadyQueue
-                                ReadyQueue.pushToReadyQueue(READY_QUEUE_TOPIC_PREFIX + jod.getTopic(), jod.getId());
+                                ReadyQueue.pushToReadyQueue(QueueConstant.READY_QUEUE_TOPIC_PREFIX + jod.getTopic(), jod.getId());
                             } else{
                                 log.debug("scoredSortedItem is process by other thread: {}", scoredSortedItem);
                             }
@@ -163,7 +161,7 @@ public class BucketHandler {
                     log.error("monitorThread error", e);
                 }
                 //如果1秒钟超过16次noPointTime，对应workThead sleep 100ms
-                log.info("minotor noPointTime: {}", noPointTime.get());
+                log.info("minotor noPointTime: {}, working thread:{}", noPointTime.get(), workingThreadNum.get());
                 if(noPointTime.get() > (8 * monitorIntervalTime * noPointSleepTime / 1000 / 100) && workingThreadNum.get() > 1){
                     workingThreadNum.set(workingThreadNum.get() / 2);
                     log.info("minotor noPointTime: {}", noPointTime.get());

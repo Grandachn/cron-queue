@@ -1,10 +1,10 @@
 package io.github.grandachn.cronqueue.component;
 
 import com.alibaba.fastjson.JSON;
-import io.github.grandachn.cronqueue.job.AbstractJob;
-import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import io.github.grandachn.cronqueue.redis.JedisTemplate;
 import io.github.grandachn.cronqueue.serialize.SerializeUtil;
+import io.github.grandachn.cronqueue.job.AbstractJob;
+import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import static io.github.grandachn.cronqueue.constant.QueueConstant.QUEUE_JOB_POOL;
@@ -25,7 +25,7 @@ public class JobPool {
     public static AbstractJob getJodById(String id) {
         String jobJson = JedisTemplate.operate().hget(QUEUE_JOB_POOL, id);
         if (jobJson != null && !"".equals(jobJson)){
-            return (AbstractJob)SerializeUtil.deserialize(jobJson);
+            return (AbstractJob) SerializeUtil.deserialize(jobJson);
         }
         //redis获取失败，如果开启持久化，则从持久化数据中取
         if(CronQueueContext.getContext().isPersitence()){
@@ -49,7 +49,7 @@ public class JobPool {
     public static boolean addJod(AbstractJob job) {
         if(CronQueueContext.getContext().isPersitence()){
             if(!PersistenceUtil.insertOrUpdate(job)){
-                log.error("将job持久化失败: " + job);
+                log.error("将job持久化失败: {}", job);
                 return false;
             }
         }
@@ -58,7 +58,7 @@ public class JobPool {
             JedisTemplate.operate().hset(QUEUE_JOB_POOL, job.getId(), SerializeUtil.serialize(job));
             return true;
         }catch (Exception e){
-            log.error("将job写入JobPool失败: " + job, e);
+            log.error("将job写入JobPool失败: {}" , job, e);
         }
         return false;
     }

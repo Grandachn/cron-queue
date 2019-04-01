@@ -1,9 +1,9 @@
 package io.github.grandachn.cronqueue.component;
 
 import io.github.grandachn.cronqueue.persistence.MongoDBPersistencer;
-import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import io.github.grandachn.cronqueue.serialize.FastJsonSerializer;
 import io.github.grandachn.cronqueue.serialize.SerializeUtil;
+import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import lombok.Data;
 
 /**
@@ -13,6 +13,7 @@ import lombok.Data;
 @Data
 public class CronQueueContext {
     private static volatile CronQueueContext cronQueueContext;
+    private static volatile CronQueue cronQueue;
     private boolean isPersitence;
 
     private CronQueueContext(){
@@ -47,5 +48,16 @@ public class CronQueueContext {
 
     public void restartServer(){
         BucketHandler.restart();
+    }
+
+    public CronQueue getCronQueue(){
+        if(cronQueue == null){
+            synchronized (CronQueueContext.class){
+                if (cronQueue == null){
+                    cronQueue = new CronQueue();
+                }
+            }
+        }
+        return cronQueue;
     }
 }

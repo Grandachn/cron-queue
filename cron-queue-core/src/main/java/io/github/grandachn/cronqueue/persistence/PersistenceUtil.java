@@ -1,10 +1,6 @@
 package io.github.grandachn.cronqueue.persistence;
 
-import com.alibaba.fastjson.JSON;
 import io.github.grandachn.cronqueue.job.AbstractJob;
-import io.github.grandachn.cronqueue.job.RepeateJob;
-import io.github.grandachn.cronqueue.serialize.FastJsonSerializer;
-import io.github.grandachn.cronqueue.serialize.SerializeUtil;
 
 /**
  * @Author by guanda

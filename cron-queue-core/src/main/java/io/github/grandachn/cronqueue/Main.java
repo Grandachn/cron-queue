@@ -1,13 +1,7 @@
 package io.github.grandachn.cronqueue;
 
-import io.github.grandachn.cronqueue.component.BucketHandler;
-import io.github.grandachn.cronqueue.component.CronQueue;
 import io.github.grandachn.cronqueue.component.CronQueueContext;
-import io.github.grandachn.cronqueue.job.CronJob;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Author by guanda
@@ -28,23 +22,25 @@ public class Main {
 
 
         CronQueueContext cronQueueContext = CronQueueContext.getContext();
-        cronQueueContext.setPersitence(false);
+        cronQueueContext.setPersitence(true);
         cronQueueContext.startServer();
-        for (int i = 0; i < 80; i++) {
-            CronQueue.push(CronJob.builder().id("123" + i).topic("cronQueueTest").message("hello" + i).cronPattern("0/2 * * * * ? ").ttrTime(100 * 1000).build());
-        }
+//        CronQueue.push(CronJob.builder().id("123").topic("cronQueueTest").message("hello").cronPattern("0/5 * * * * ? ").ttrTime(2 * 1000).build());
+//        for (int i = 0; i < 10; i++) {
+//            CronQueue.push(CronJob.builder().id("123" + i).topic("cronQueueTest").message("hello" + i).cronPattern("0/2 * * * * ? ").ttrTime(100 * 1000).build());
+//            CronQueue.stop(CronJob.builder().id("123" + i).topic("cronQueueTest").message("hello").cronPattern("0/10 * * * * ?").build());
+//        }
 
         for (int i = 0; i < 8; i++) {
             Thread thread = new Thread(() -> {
-                while (true) {
-                    CronJob cronJob1 = (CronJob) CronQueue.pop("cronQueueTest");
-                    if (cronJob1 == null) {
-//
-                        continue;
-                    }
-                    log.info(cronJob1.getMessage() + "---" + new Date());
-                    CronQueue.finish(cronJob1);
-                }
+//                while (true) {
+//                    CronJob cronJob1 = (CronJob) CronQueue.pop("cronQueueTest");
+//                    if (cronJob1 == null) {
+////
+//                        continue;
+//                    }
+//                    log.info(cronJob1.getMessage() + "---" + new Date());
+////                    CronQueue.finish(cronJob1);
+//                }
             });
             thread.start();
         }

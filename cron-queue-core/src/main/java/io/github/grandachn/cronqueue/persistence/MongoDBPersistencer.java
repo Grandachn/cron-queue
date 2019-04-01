@@ -1,6 +1,10 @@
 package io.github.grandachn.cronqueue.persistence;
 
+import io.github.grandachn.cronqueue.util.ReflectionUtils;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -9,8 +13,8 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import io.github.grandachn.cronqueue.conf.MongoDBConf;
 import io.github.grandachn.cronqueue.job.AbstractJob;
-import io.github.grandachn.cronqueue.util.ReflectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.json.JsonMode;
@@ -36,10 +40,19 @@ public class MongoDBPersistencer implements Persistencer{
     }
 
     private void initConn() {
-        MongoClient mongoClient = new MongoClient( "192.168.1.188" , 27017 );
-//        MongoClient mongoClient = new MongoClient( "127.0.0.1" , 27017 );
-        MongoDatabase mongoDatabase = mongoClient.getDatabase("cronqueue");
-        mongoCollection = mongoDatabase.getCollection("JobPool");
+        MongoClient mongoClient;
+
+        ServerAddress serverAddress = new ServerAddress(MongoDBConf.ADDRESS, MongoDBConf.PORT);
+
+        if(!"".equals(MongoDBConf.USER)){
+            MongoCredential credential = MongoCredential.createCredential(MongoDBConf.USER, MongoDBConf.DATABASE, MongoDBConf.PASSWORD.toCharArray());
+            mongoClient = new MongoClient(serverAddress, credential, MongoClientOptions.builder().build());
+        }else{
+            mongoClient = new MongoClient(serverAddress);
+        }
+
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(MongoDBConf.DATABASE);
+        mongoCollection = mongoDatabase.getCollection(MongoDBConf.COLLECTION);
     }
 
     @Override

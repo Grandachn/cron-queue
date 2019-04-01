@@ -1,4 +1,4 @@
-package io.github.grandachn;
+package com.github.grandachn;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

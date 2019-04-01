@@ -10,6 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>cron-queue-core</module>
+        <module>spring-cron-queue-starter</module>
     </modules>
 
 

@@ -1,9 +1,9 @@
 package io.github.grandachn.cronqueue.job;
 
-import io.github.grandachn.cronqueue.component.Bucket;
 import io.github.grandachn.cronqueue.component.JobPool;
 import io.github.grandachn.cronqueue.component.ScoredSortedItem;
 import io.github.grandachn.cronqueue.redis.DistributedRedisLock;
+import io.github.grandachn.cronqueue.component.Bucket;
 import io.github.grandachn.cronqueue.util.CronUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;

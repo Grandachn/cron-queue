@@ -1,5 +1,6 @@
 package io.github.grandachn.cronqueue.component;
 
+import io.github.grandachn.cronqueue.constant.QueueConstant;
 import io.github.grandachn.cronqueue.redis.JedisConnectPoll;
 import io.github.grandachn.cronqueue.redis.JedisTemplate;
 import io.github.grandachn.cronqueue.serialize.SerializeUtil;
@@ -11,9 +12,6 @@ import redis.clients.jedis.Response;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import static io.github.grandachn.cronqueue.constant.QueueConstant.BUCKET_KEY_PREFIX;
-import static io.github.grandachn.cronqueue.constant.QueueConstant.BUCKET_NUM;
 
 /**
  * 一组以时间为维度的有序队列，用来存放所有需要延迟的DelayJob（只存放DelayJob Id）
@@ -109,6 +107,6 @@ public class Bucket {
     }
 
     public static String getDelayBucketKey(String jodId) {
-        return BUCKET_KEY_PREFIX + ( Math.abs(jodId.hashCode()) % BUCKET_NUM);
+        return QueueConstant.BUCKET_KEY_PREFIX + ( Math.abs(jodId.hashCode()) % QueueConstant.BUCKET_NUM);
     }
 }

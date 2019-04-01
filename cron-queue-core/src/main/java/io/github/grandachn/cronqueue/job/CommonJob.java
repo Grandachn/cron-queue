@@ -4,10 +4,7 @@ package io.github.grandachn.cronqueue.job;
 import io.github.grandachn.cronqueue.component.Bucket;
 import io.github.grandachn.cronqueue.component.JobPool;
 import io.github.grandachn.cronqueue.component.ScoredSortedItem;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
