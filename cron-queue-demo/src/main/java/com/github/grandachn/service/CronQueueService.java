@@ -1,5 +1,6 @@
 package com.github.grandachn.service;
 
+import com.mongodb.MongoClient;
 import io.github.grandachn.cronqueue.component.CronQueue;
 import io.github.grandachn.cronqueue.job.CronJob;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ public class CronQueueService {
 
     @Autowired
     private CronQueue cronQueue;
+
 
     @PostConstruct
     public void start() throws InterruptedException {

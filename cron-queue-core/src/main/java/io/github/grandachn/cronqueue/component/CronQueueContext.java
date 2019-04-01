@@ -1,6 +1,7 @@
 package io.github.grandachn.cronqueue.component;
 
 import io.github.grandachn.cronqueue.persistence.MongoDBPersistencer;
+import io.github.grandachn.cronqueue.persistence.Persistencer;
 import io.github.grandachn.cronqueue.serialize.FastJsonSerializer;
 import io.github.grandachn.cronqueue.serialize.SerializeUtil;
 import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
@@ -15,14 +16,12 @@ public class CronQueueContext {
     private static volatile CronQueueContext cronQueueContext;
     private static volatile CronQueue cronQueue;
     private boolean isPersitence;
+    private static Persistencer persistencer;
 
-    private CronQueueContext(){
-        init();
-    }
-
-    private void init(){
+    private CronQueueContext(Persistencer persistencer){
+        CronQueueContext.persistencer = persistencer;
         SerializeUtil.setSerializer(new FastJsonSerializer());
-        PersistenceUtil.setPersistencer(new MongoDBPersistencer(false));
+        PersistenceUtil.setPersistencer(CronQueueContext.persistencer);
         setPersitence(false);
     }
 
@@ -30,7 +29,7 @@ public class CronQueueContext {
         if(cronQueueContext == null){
             synchronized (CronQueueContext.class){
                 if (cronQueueContext == null){
-                    cronQueueContext = new CronQueueContext();
+                    cronQueueContext = new CronQueueContext(persistencer);
                 }
             }
         }

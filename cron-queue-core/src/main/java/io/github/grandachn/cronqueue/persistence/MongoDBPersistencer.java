@@ -39,7 +39,7 @@ public class MongoDBPersistencer implements Persistencer{
         initConn();
     }
 
-    private void initConn() {
+    public void initConn() {
         MongoClient mongoClient;
 
         ServerAddress serverAddress = new ServerAddress(MongoDBConf.ADDRESS, MongoDBConf.PORT);

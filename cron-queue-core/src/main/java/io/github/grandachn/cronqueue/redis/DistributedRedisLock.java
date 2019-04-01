@@ -22,10 +22,16 @@ public class DistributedRedisLock {
 
     static {
         Config config = new Config();
-        config.useSingleServer()
-                .setAddress("redis://"+ RedissonConf.ADDRESS + ":" + RedissonConf.PORT)
-                .setPassword(RedissonConf.PASSWORD)
-                .setPingConnectionInterval(60);
+        if(!RedissonConf.PASSWORD.equals("")){
+            config.useSingleServer()
+                    .setAddress("redis://"+ RedissonConf.ADDRESS + ":" + RedissonConf.PORT)
+                    .setPassword(RedissonConf.PASSWORD)
+                    .setPingConnectionInterval(60);
+        }else{
+            config.useSingleServer()
+                    .setAddress("redis://"+ RedissonConf.ADDRESS + ":" + RedissonConf.PORT)
+                    .setPingConnectionInterval(60);
+        }
         redisson = (Redisson) Redisson.create(config);
     }
 
