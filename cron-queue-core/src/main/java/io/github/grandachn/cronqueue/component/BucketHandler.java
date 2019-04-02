@@ -1,6 +1,6 @@
 package io.github.grandachn.cronqueue.component;
 
-import io.github.grandachn.cronqueue.constant.QueueConstant;
+import io.github.grandachn.cronqueue.conf.QueueConf;
 import io.github.grandachn.cronqueue.job.AbstractJob;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,14 +51,14 @@ public class BucketHandler {
             final int threadNo = i;
             workingThreadGroup.execute(() -> {
                 List<String> bucketKeys = new LinkedList<>();
-                if(workingThreadNum.get() < QueueConstant.BUCKET_NUM){
-                    for (int j = 0; j < QueueConstant.BUCKET_NUM; j++) {
-                        if (j % (workingThreadNum.get() % QueueConstant.BUCKET_NUM) == threadNo % QueueConstant.BUCKET_NUM) {
-                            bucketKeys.add(QueueConstant.BUCKET_KEY_PREFIX + j);
+                if(workingThreadNum.get() < QueueConf.BUCKET_NUM){
+                    for (int j = 0; j < QueueConf.BUCKET_NUM; j++) {
+                        if (j % (workingThreadNum.get() % QueueConf.BUCKET_NUM) == threadNo % QueueConf.BUCKET_NUM) {
+                            bucketKeys.add(QueueConf.BUCKET_KEY_PREFIX + j);
                         }
                     }
                 }else {
-                    bucketKeys.add(QueueConstant.BUCKET_KEY_PREFIX + (threadNo % QueueConstant.BUCKET_NUM));
+                    bucketKeys.add(QueueConf.BUCKET_KEY_PREFIX + (threadNo % QueueConf.BUCKET_NUM));
                 }
 
                 log.info("workingThreadGroup thread_" + threadNo + " is start：" + bucketKeys);
@@ -89,7 +89,7 @@ public class BucketHandler {
                                 Bucket.addToBucket(Bucket.getDelayBucketKey(scoredSortedItem.getJodId()), new ScoredSortedItem(jod.getId(), jod.getExecuteTime()));
                             } else if (Bucket.deleteFormBucket(scoredSortedItem)){
                                 //只有成功删除的线程才能将其放到ReadyQueue
-                                ReadyQueue.pushToReadyQueue(QueueConstant.READY_QUEUE_TOPIC_PREFIX + jod.getTopic(), jod.getId());
+                                ReadyQueue.pushToReadyQueue(QueueConf.READY_QUEUE_TOPIC_PREFIX + jod.getTopic(), jod.getId());
                             } else{
                                 log.debug("scoredSortedItem is process by other thread: {}", scoredSortedItem);
                             }
@@ -123,7 +123,7 @@ public class BucketHandler {
         while (!workingThreadGroup.isTerminated()) {
             log.info("waitting for workingThreadGroup shutdown");
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(50);
             } catch (InterruptedException e) {
                 log.error("stop workingThreadGroup error", e);
             }

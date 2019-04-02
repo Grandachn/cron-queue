@@ -11,6 +11,10 @@
     <modules>
         <module>cron-queue-core</module>
         <module>spring-cron-queue-starter</module>
+        <module>cron-queue-mongo</module>
+        <module>spring-cron-queue-mongo</module>
+        <module>cron-queue-demo</module>
+        <module>springboot-cron-queue-demo</module>
     </modules>
 
 

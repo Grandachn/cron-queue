@@ -1,6 +1,6 @@
 package io.github.grandachn.cronqueue.component;
 
-import io.github.grandachn.cronqueue.constant.QueueConstant;
+import io.github.grandachn.cronqueue.conf.QueueConf;
 import io.github.grandachn.cronqueue.job.AbstractJob;
 import io.github.grandachn.cronqueue.redis.DistributedRedisLock;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class CronQueue {
      * @return 任务
      */
     public AbstractJob pop(String topic) {
-        topic = QueueConstant.READY_QUEUE_TOPIC_PREFIX + topic;
+        topic = QueueConf.READY_QUEUE_TOPIC_PREFIX + topic;
         String jodId = ReadyQueue.popFormReadyQueue(topic);
         if (jodId != null) {
             AbstractJob job = JobPool.getJodById(jodId);

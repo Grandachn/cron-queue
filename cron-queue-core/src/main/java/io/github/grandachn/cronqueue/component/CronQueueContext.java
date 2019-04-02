@@ -1,35 +1,41 @@
 package io.github.grandachn.cronqueue.component;
 
-import io.github.grandachn.cronqueue.persistence.MongoDBPersistencer;
+import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import io.github.grandachn.cronqueue.persistence.Persistencer;
 import io.github.grandachn.cronqueue.serialize.FastJsonSerializer;
 import io.github.grandachn.cronqueue.serialize.SerializeUtil;
-import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Author by guanda
  * @Date 2019/3/27 13:39
  */
+@Slf4j
 @Data
 public class CronQueueContext {
     private static volatile CronQueueContext cronQueueContext;
     private static volatile CronQueue cronQueue;
     private boolean isPersitence;
-    private static Persistencer persistencer;
 
-    private CronQueueContext(Persistencer persistencer){
-        CronQueueContext.persistencer = persistencer;
+    private CronQueueContext(){
         SerializeUtil.setSerializer(new FastJsonSerializer());
-        PersistenceUtil.setPersistencer(CronQueueContext.persistencer);
         setPersitence(false);
+    }
+
+    public void init(){
+        try {
+            PersistenceUtil.setPersistencer((Persistencer) Class.forName("io.github.grandachn.persistence.MongoDBPersistencer").getConstructor(Boolean.class).newInstance(false));
+        } catch (Exception e) {
+            log.error("CronQueueContext init error: ", e);
+        }
     }
 
     public static CronQueueContext getContext(){
         if(cronQueueContext == null){
             synchronized (CronQueueContext.class){
                 if (cronQueueContext == null){
-                    cronQueueContext = new CronQueueContext(persistencer);
+                    cronQueueContext = new CronQueueContext();
                 }
             }
         }
@@ -58,5 +64,9 @@ public class CronQueueContext {
             }
         }
         return cronQueue;
+    }
+
+    public void setPersitencer(Persistencer persitencer){
+        PersistenceUtil.setPersistencer(persitencer);
     }
 }

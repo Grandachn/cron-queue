@@ -1,6 +1,6 @@
 package io.github.grandachn.cronqueue.component;
 
-import io.github.grandachn.cronqueue.constant.QueueConstant;
+import io.github.grandachn.cronqueue.conf.QueueConf;
 import io.github.grandachn.cronqueue.redis.JedisConnectPoll;
 import io.github.grandachn.cronqueue.redis.JedisTemplate;
 import io.github.grandachn.cronqueue.serialize.SerializeUtil;
@@ -107,6 +107,6 @@ public class Bucket {
     }
 
     public static String getDelayBucketKey(String jodId) {
-        return QueueConstant.BUCKET_KEY_PREFIX + ( Math.abs(jodId.hashCode()) % QueueConstant.BUCKET_NUM);
+        return QueueConf.BUCKET_KEY_PREFIX + ( Math.abs(jodId.hashCode()) % QueueConf.BUCKET_NUM);
     }
 }

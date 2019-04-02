@@ -1,38 +1,38 @@
 package io.github.grandachn.cronqueue;
 
+import com.mongodb.MongoClient;
 import io.github.grandachn.cronqueue.component.CronQueue;
 import io.github.grandachn.cronqueue.component.CronQueueContext;
-import lombok.extern.slf4j.Slf4j;
+import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import io.github.grandachn.cronqueue.persistence.MongoDbPersistencer;
 
 /**
  * @Author by guanda
  * @Date 2019/4/1 17:02
  */
-@Slf4j
 @Configuration
 @ConditionalOnMissingBean(CronQueueContext.class)
-@EnableConfigurationProperties(CronQueueProperties.class)
-public class CronQueueAutoConfiguration {
+public class CronQueueWithMongoAutoConfiguration {
     private final CronQueueProperties cronQueueProperties;
 
     @Autowired
-    public CronQueueAutoConfiguration(CronQueueProperties cronQueueProperties) {
+    public CronQueueWithMongoAutoConfiguration(CronQueueProperties cronQueueProperties) {
         this.cronQueueProperties = cronQueueProperties;
     }
 
-
     @Bean
     @ConditionalOnMissingBean(CronQueueContext.class)
-    @ConditionalOnMissingClass({"com.mongodb.MongoClient"})
-    public CronQueueContext cronQueueContext(){
-        log.info("cronQueueContext start");
+    @ConditionalOnClass(MongoClient.class)
+    @Autowired
+    public CronQueueContext cronQueueContextWithMongo(MongoClient mongoClient){
+        System.out.println("cronQueueContextWithMongo start");
         CronQueueContext cronQueueContext = CronQueueContext.getContext();
+        PersistenceUtil.setPersistencer(new MongoDbPersistencer(mongoClient, false));
         cronQueueContext.setPersitence(cronQueueProperties.isNeedPersistence());
         if(cronQueueProperties.isAsServer()){
             cronQueueContext.startServer();

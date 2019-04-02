@@ -7,7 +7,7 @@ import io.github.grandachn.cronqueue.job.AbstractJob;
 import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import static io.github.grandachn.cronqueue.constant.QueueConstant.QUEUE_JOB_POOL;
+import static io.github.grandachn.cronqueue.conf.QueueConf.QUEUE_JOB_POOL;
 
 /**
  * 延迟任务池(维护延迟任务元信息)

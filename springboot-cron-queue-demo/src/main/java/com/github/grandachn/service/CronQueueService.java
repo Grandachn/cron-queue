@@ -1,6 +1,6 @@
 package com.github.grandachn.service;
 
-import com.mongodb.MongoClient;
+//import com.mongodb.MongoClient;
 import io.github.grandachn.cronqueue.component.CronQueue;
 import io.github.grandachn.cronqueue.job.CronJob;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +15,6 @@ import java.util.Date;
  */
 @Service
 public class CronQueueService {
-//    @Autowired
-//    private CronQueueContext cronQueueContext;
 
     @Autowired
     private CronQueue cronQueue;

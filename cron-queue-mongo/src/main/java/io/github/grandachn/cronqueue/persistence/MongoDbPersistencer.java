@@ -1,6 +1,5 @@
 package io.github.grandachn.cronqueue.persistence;
 
-import io.github.grandachn.cronqueue.util.ReflectionUtils;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
@@ -15,6 +14,8 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import io.github.grandachn.cronqueue.conf.MongoDBConf;
 import io.github.grandachn.cronqueue.job.AbstractJob;
+import io.github.grandachn.cronqueue.persistence.Persistencer;
+import io.github.grandachn.cronqueue.util.ReflectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.json.JsonMode;
@@ -29,12 +30,18 @@ import java.util.Date;
  * @Date 2019/3/27 16:10
  */
 @Slf4j
-public class MongoDBPersistencer implements Persistencer{
+public class MongoDbPersistencer implements Persistencer {
     private MongoCollection<Document> mongoCollection;
 
     private boolean isHardDelete;
 
-    public MongoDBPersistencer(boolean isHardDelete){
+    public MongoDbPersistencer(MongoClient mongoClient, boolean isHardDelete){
+        this.isHardDelete = isHardDelete;
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(MongoDBConf.DATABASE);
+        mongoCollection = mongoDatabase.getCollection(MongoDBConf.COLLECTION);
+    }
+
+    public MongoDbPersistencer(boolean isHardDelete){
         this.isHardDelete = isHardDelete;
         initConn();
     }

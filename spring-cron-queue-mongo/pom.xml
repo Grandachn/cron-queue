@@ -9,13 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-cron-queue-starter</artifactId>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
-    </properties>
+    <artifactId>spring-cron-queue-mongo</artifactId>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
@@ -25,13 +19,19 @@
             <version>1.18.6</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
             <version>2.1.0.RELEASE</version>
         </dependency>
         <dependency>
-            <artifactId>cron-queue-core</artifactId>
+            <groupId>io.github.grandachn</groupId>
+            <artifactId>spring-cron-queue-starter</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <artifactId>cron-queue-mongo</artifactId>
             <groupId>io.github.grandachn</groupId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
