@@ -6,12 +6,15 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.util.UUID;
+
 /**
  * @Author by guanda
  * @Date 2019/3/15 14:42
  */
 @Slf4j
 public class JedisConnectPoll {
+    public static final UUID JEDIS_CONNECT_POLL_UUID = UUID.randomUUID();
     //连接redis实例的ip
     private static final String REDIS_ADDRESS = JedisPollConf.ADDRESS;
     //连接redis实例的端口
@@ -71,5 +74,4 @@ public class JedisConnectPoll {
     public static Jedis getJedis(){
         return jedisPool.getResource();
     }
-
 }

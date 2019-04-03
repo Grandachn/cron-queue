@@ -35,4 +35,8 @@ public class CommonException extends RuntimeException{
     public static CommonException build(Throwable cause, String s){
         return new CommonException(s, cause);
     }
+
+    public static CommonException build(String s){
+        return new CommonException(s);
+    }
 }
