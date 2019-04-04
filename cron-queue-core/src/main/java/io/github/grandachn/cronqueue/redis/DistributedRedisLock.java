@@ -10,11 +10,12 @@ import org.redisson.config.Config;
 import java.util.concurrent.TimeUnit;
 
 /**
- * redis 分布式锁
+ * redis 分布式锁 (推荐使用本项目实现的RedisReadWriteLock)
  * @Author by guanda
  * @Date 2019/3/29 17:36
  */
 @Slf4j
+@Deprecated
 public class DistributedRedisLock {
     private static Redisson redisson;
 

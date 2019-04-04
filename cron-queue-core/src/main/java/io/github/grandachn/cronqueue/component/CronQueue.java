@@ -2,7 +2,7 @@ package io.github.grandachn.cronqueue.component;
 
 import io.github.grandachn.cronqueue.conf.QueueConf;
 import io.github.grandachn.cronqueue.job.AbstractJob;
-import io.github.grandachn.cronqueue.redis.DistributedRedisLock;
+import io.github.grandachn.cronqueue.redis.lock.RedisReadWriteLock;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -85,11 +85,13 @@ public class CronQueue {
         }
         //正常结束
         //写锁
-        DistributedRedisLock.acquireWriteLock(job.getId());
+        RedisReadWriteLock.writeLock().lock(job.getId());
+//        DistributedRedisLock.acquireWriteLock(job.getId());
         JobPool.deleteJod(job);
         ScoredSortedItem item = new ScoredSortedItem(jod.getId(), jod.getExecuteTime());
         Bucket.deleteFormBucket(item);
-        DistributedRedisLock.releaseWriteLock(job.getId());
+        RedisReadWriteLock.writeLock().unlock(job.getId());
+//        DistributedRedisLock.releaseWriteLock(job.getId());
     }
 }
 

@@ -1,9 +1,7 @@
-package io.github.grandachn.cronqueue.redis.rock;
+package io.github.grandachn.cronqueue.redis.lock;
 
 import io.github.grandachn.cronqueue.conf.RedisLockConf;
 import io.github.grandachn.cronqueue.redis.JedisConnectPoll;
-
-import java.util.UUID;
 
 /**
  * 基于redis的读写锁（可重入）
@@ -25,7 +23,7 @@ public class RedisReadWriteLock {
         return redisReadLock;
     }
 
-    public RedisWriteLock writeLock(){
+    public static RedisWriteLock writeLock(){
         if(redisWriteLock == null){
             synchronized (RedisWriteLock.class){
                 if (redisWriteLock == null){
@@ -42,6 +40,10 @@ public class RedisReadWriteLock {
 
     public static String getWriteLockKey(String name){
         return RedisLockConf.WRITE_LOCK_PREFIX + name;
+    }
+
+    public static String getReentrantWriteLockKey(String name){
+        return RedisLockConf.REENTRANT_WRITE_LOCK_PREFIX + name;
     }
 
     public static String getThreadUid(){

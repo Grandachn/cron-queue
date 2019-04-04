@@ -1,5 +1,6 @@
 package io.github.grandachn.cronqueue.component;
 
+import io.github.grandachn.cronqueue.persistence.DefaultPersistencer;
 import io.github.grandachn.cronqueue.persistence.PersistenceUtil;
 import io.github.grandachn.cronqueue.persistence.Persistencer;
 import io.github.grandachn.cronqueue.serialize.FastJsonSerializer;
@@ -20,6 +21,7 @@ public class CronQueueContext {
 
     private CronQueueContext(){
         SerializeUtil.setSerializer(new FastJsonSerializer());
+        PersistenceUtil.setPersistencer(new DefaultPersistencer());
         setPersitence(false);
     }
 

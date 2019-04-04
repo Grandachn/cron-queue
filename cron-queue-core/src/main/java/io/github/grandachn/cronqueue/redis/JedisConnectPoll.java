@@ -58,7 +58,6 @@ public class JedisConnectPoll {
             config.setMinEvictableIdleTimeMillis(METM);
             config.setSoftMinEvictableIdleTimeMillis(SMETM);
             config.setTimeBetweenEvictionRunsMillis(TBERM);
-//            jedisPool = new JedisPool(config, REDIS_ADDRESS, PORT, TIME_OUT, PASSWORD);
 
             if(!"".equals(PASSWORD)){
                 jedisPool = new JedisPool(config, REDIS_ADDRESS, PORT, TIME_OUT, PASSWORD);

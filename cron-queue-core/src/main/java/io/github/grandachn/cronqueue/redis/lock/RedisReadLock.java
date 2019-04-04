@@ -1,4 +1,4 @@
-package io.github.grandachn.cronqueue.redis.rock;
+package io.github.grandachn.cronqueue.redis.lock;
 
 import io.github.grandachn.cronqueue.redis.JedisTemplate;
 import lombok.extern.slf4j.Slf4j;
@@ -12,11 +12,15 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class RedisReadLock {
-    public static void lock(String name){
+    public void lock(String name){
         tryLock(name, Long.MAX_VALUE, 30, TimeUnit.SECONDS);
     }
 
-    public static boolean tryLock(String name, long waitTime, long leaseTime, TimeUnit unit){
+    public void lock(String name, long leaseTime, TimeUnit unit){
+        tryLock(name, Long.MAX_VALUE, leaseTime, unit);
+    }
+
+    public boolean tryLock(String name, long waitTime, long leaseTime, TimeUnit unit){
         Long waitUntilTime = unit.toMillis(waitTime) + System.currentTimeMillis();
         Long leastTimeLong = unit.toMillis(leaseTime);
         StringBuilder sctipt = new StringBuilder();
@@ -43,13 +47,13 @@ public class RedisReadLock {
             Long res = (Long) JedisTemplate.operate().eval(sctipt.toString(), 3, RedisReadWriteLock.getWriteLockKey(name), RedisReadWriteLock.getReadLockKey(name), RedisReadWriteLock.getThreadUid(), leastTimeLong.toString());
             if(res.equals(1L)){
                 //successGetReadLock
-                log.info("success get read lock,  readLock={}", RedisReadWriteLock.getReadLockKey(name));
+                log.debug("success get read lock,  readLock={}", RedisReadWriteLock.getReadLockKey(name));
                 break;
             }else {
                 //need to wait write lock to be released
-                log.info("wait write lock release,  writeLock={}", RedisReadWriteLock.getWriteLockKey(name));
+                log.debug("wait write lock release,  writeLock={}", RedisReadWriteLock.getWriteLockKey(name));
                 try {
-                    TimeUnit.MILLISECONDS.sleep(100);
+                    TimeUnit.MILLISECONDS.sleep(50);
                 } catch (InterruptedException e) {
                     log.error("wait write lock release exception", e);
                 }
@@ -58,7 +62,7 @@ public class RedisReadLock {
         return true;
     }
 
-    public static void unlock(String name){
+    public void unlock(String name){
         StringBuilder sctipt = new StringBuilder();
         sctipt.append("local count = redis.call('HGET',KEYS[1],KEYS[2]);")
                 .append("if count then ")
@@ -71,15 +75,7 @@ public class RedisReadLock {
                 .append("end;")
                 .append("return;");
         JedisTemplate.operate().eval(sctipt.toString(), 2, RedisReadWriteLock.getReadLockKey(name), RedisReadWriteLock.getThreadUid());
-        log.info("success unlock read lock, readLock={}", RedisReadWriteLock.getReadLockKey(name));
+        log.debug("success unlock read lock, readLock={}", RedisReadWriteLock.getReadLockKey(name));
     }
 
-    public static void main(String[] args) {
-        tryLock("b", 30,300, TimeUnit.SECONDS);
-        tryLock("b", 30,300, TimeUnit.SECONDS);
-        tryLock("b", 30,300, TimeUnit.SECONDS);
-        unlock("b");
-        unlock("b");
-        unlock("b");
-    }
 }
