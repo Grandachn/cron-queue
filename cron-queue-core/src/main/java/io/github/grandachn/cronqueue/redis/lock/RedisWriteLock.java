@@ -11,17 +11,23 @@ import java.util.concurrent.TimeUnit;
  * @Date 2019/4/3 15:05
  */
 @Slf4j
-public class RedisWriteLock {
+public class RedisWriteLock implements Lock{
+    @Override
     public void lock(String name){
         tryLock(name, Long.MAX_VALUE, 30, TimeUnit.SECONDS);
     }
 
+    @Override
     public void lock(String name, long leaseTime, TimeUnit unit){
         tryLock(name, Long.MAX_VALUE, leaseTime, unit);
     }
 
+    @Override
     public boolean tryLock(String name, long waitTime, long leaseTime, TimeUnit unit){
         Long waitUntilTime = unit.toMillis(waitTime) + System.currentTimeMillis();
+        if(waitUntilTime < 0){
+            waitUntilTime = Long.MAX_VALUE;
+        }
         Long leastTimeLong = unit.toMillis(leaseTime);
         StringBuilder sctipt = new StringBuilder();
         // write-lock reentrant-write-lock uuid leaseTime
@@ -80,6 +86,7 @@ public class RedisWriteLock {
         return true;
     }
 
+    @Override
     public void unlock(String name){
         StringBuilder sctipt = new StringBuilder();
         //write-lock reentrant-write-lock uuid

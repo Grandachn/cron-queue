@@ -34,7 +34,7 @@ public class JedisConnectPoll {
     //逐出扫描的时间间隔(毫秒) 如果为负数,则不运行逐出线程, 默认-1,只有运行了此线程,MIN_OLDE METM/SMETM才会起作用
     private static final int TBERM = 1000;
     //当连接池中连接不够用时,等待可用连接的最大时间，单位毫秒，默认值为-1，表示永不超时。如果超过等待时间，则直接抛出JedisConnectionException；
-    private static final int MAX_WAIT = 1000;
+    private static final int MAX_WAIT = 4000;
     //超时时间,单位毫秒
     private static final int TIME_OUT = 10000;
     //在借用一个jedis连接实例时，是否提前进行有效性确认操作；如果为true，则得到的jedis实例均是可用的；
@@ -58,6 +58,7 @@ public class JedisConnectPoll {
             config.setMinEvictableIdleTimeMillis(METM);
             config.setSoftMinEvictableIdleTimeMillis(SMETM);
             config.setTimeBetweenEvictionRunsMillis(TBERM);
+//            jedisPool = new JedisPool(config, REDIS_ADDRESS, PORT, TIME_OUT, PASSWORD);
 
             if(!"".equals(PASSWORD)){
                 jedisPool = new JedisPool(config, REDIS_ADDRESS, PORT, TIME_OUT, PASSWORD);

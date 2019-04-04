@@ -18,7 +18,7 @@ public class CronQueueTest {
     @Test
     public void test() throws InterruptedException {
         CronQueueContext cronQueueContext = CronQueueContext.getContext();
-        cronQueueContext.setPersitence(false);
+        cronQueueContext.setPersitence(true);
         cronQueueContext.startServer();
         CronQueue cronQueue = cronQueueContext.getCronQueue();
         cronQueue.push(CronJob.builder().id("123").topic("cronQueueTest").message("hello").cronPattern("0/5 * * * * ? ").ttrTime(2 * 1000).build());
@@ -53,6 +53,7 @@ public class CronQueueTest {
         TimeUnit.SECONDS.sleep(20);
         cronQueue.stop(CronJob.builder().id("123").topic("cronQueueTest").message("hello").cronPattern("0/10 * * * * ?").build());
         System.out.println("stop2");
+        TimeUnit.SECONDS.sleep(20);
 
 
 //        CronQueueContext cronQueueContext = CronQueueContext.getContext();
