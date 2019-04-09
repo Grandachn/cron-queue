@@ -19,20 +19,20 @@ public class LockTest {
         final int[] num = {0};
         for (int i = 0; i < 10 ; i++) {
             Thread thread = new Thread(() -> {
-                RedisReadWriteLock.writeLock().tryLock("ccc", 30,300, TimeUnit.SECONDS);
+                RedisReadWriteLock.writeLock().tryLock("c", 30,300, TimeUnit.SECONDS);
                 num[0]++;
                 log.info("【写】：" + num[0]);
-                RedisReadWriteLock.writeLock().unlock("ccc");
+                RedisReadWriteLock.writeLock().unlock("c");
             });
             thread.start();
         }
         for (int i = 0; i < 100 ; i++) {
             Thread thread = new Thread(() -> {
-                RedisReadWriteLock.readLock().tryLock("ccc", 30,300, TimeUnit.SECONDS);
+                RedisReadWriteLock.readLock().tryLock("c", 30,300, TimeUnit.SECONDS);
 
                 log.info("读：" + num[0]);
 
-                RedisReadWriteLock.readLock().unlock("ccc");
+                RedisReadWriteLock.readLock().unlock("c");
             });
             thread.start();
             if(i % 3 == 0){
@@ -45,7 +45,7 @@ public class LockTest {
         }
 
         try {
-            TimeUnit.SECONDS.sleep(10);
+            TimeUnit.SECONDS.sleep(5);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

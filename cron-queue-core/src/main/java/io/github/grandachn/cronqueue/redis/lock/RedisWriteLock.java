@@ -12,6 +12,67 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class RedisWriteLock implements Lock{
+    private static String tryLockScript;
+
+    private static String unLockScript;
+
+    private static String tryLockScriptSha;
+
+    private static String unLockScriptSha;
+
+    RedisWriteLock(){
+        // write-lock reentrant-write-lock uuid leaseTime
+        tryLockScript = "if redis.call('SET',KEYS[1],ARGV[1],'NX','PX',ARGV[2]) then " +
+                            "redis.call('SET',KEYS[2],1,'PX',ARGV[2]);" +
+                            "return 1;" +
+                        "else " +
+                            "if (redis.call('GET',KEYS[1])== ARGV[1]) then " +
+                                "local count = redis.call('GET',KEYS[2]);" +
+                                "if not count then " +
+                                    "redis.call('SET',KEYS[2],1,'PX',ARGV[2]);" +
+                                    "return 1;" +
+                                "else " +
+                                    "count = tonumber(count) + 1;" +
+                                    "redis.call('SET',KEYS[2],count,'PX',ARGV[2]);" +
+                                    "return count;" +
+                                "end;" +
+                            "else " +
+                                "return 0;" +
+                            "end;" +
+                        "end;";
+        if(tryLockScriptSha == null || "".equals(tryLockScriptSha)){
+            tryLockScriptSha = JedisTemplate.operate().scriptLoad(tryLockScript);
+        }
+
+        //write-lock reentrant-write-lock uuid
+        unLockScript = "if (redis.call('GET',KEYS[1])== ARGV[1]) then " +
+                            "local count = redis.call('GET',KEYS[2]);" +
+                            "if count then " +
+                                "if (tonumber(count) > 1) then " +
+                                    "count = tonumber(count) - 1;" +
+                                    "local live = redis.call('PTTL',KEYS[2]);" +
+                                    "redis.call('SET',KEYS[2],count,'PX',live);" +
+                                    //success unlock reentrant-write-lock
+                                    "return count;" +
+                                "else " +
+                                    "redis.call('DEL',KEYS[2]);" +
+                                    "redis.call('DEL',KEYS[1]);" +
+                                    //success unlock
+                                    "return 0;" +
+                                "end;" +
+                            "else " +
+                                "redis.call('DEL',KEYS[1]);" +
+                            "return 0;" +
+                            "end;" +
+                         "else " +
+                            //fail unlock, thread not get the lock
+                            "return -1;" +
+                         "end;";
+        if(unLockScriptSha == null || "".equals(unLockScriptSha)){
+            unLockScriptSha = JedisTemplate.operate().scriptLoad(unLockScript);
+        }
+    }
+
     @Override
     public void lock(String name){
         tryLock(name, Long.MAX_VALUE, 30, TimeUnit.SECONDS);
@@ -29,31 +90,19 @@ public class RedisWriteLock implements Lock{
             waitUntilTime = Long.MAX_VALUE;
         }
         Long leastTimeLong = unit.toMillis(leaseTime);
-        StringBuilder sctipt = new StringBuilder();
-        // write-lock reentrant-write-lock uuid leaseTime
-        sctipt.append("if redis.call('SET',KEYS[1],ARGV[1],'NX','PX',ARGV[2]) then ")
-                    .append("redis.call('SET',KEYS[2],1,'PX',ARGV[2]);")
-                    .append("return 1;")
-                .append("else ")
-                    .append("if (redis.call('GET',KEYS[1])== ARGV[1]) then ")
-                        .append("local count = redis.call('GET',KEYS[2]);")
-                        .append("if not count then ")
-                            .append("redis.call('SET',KEYS[2],1,'PX',ARGV[2]);")
-                            .append("return 1;")
-                        .append("else ")
-                            .append("count = tonumber(count) + 1;")
-                            .append("redis.call('SET',KEYS[2],count,'PX',ARGV[2]);")
-                            .append("return count;")
-                        .append("end;")
-                    .append("else ")
-                        .append("return 0;")
-                    .append("end;")
-                .append("end;");
+
         for(;;){
             if(System.currentTimeMillis() > waitUntilTime){
                 return false;
             }
-            Long res = (Long) JedisTemplate.operate().eval(sctipt.toString(), 2, RedisReadWriteLock.getWriteLockKey(name), RedisReadWriteLock.getReentrantWriteLockKey(name), RedisReadWriteLock.getThreadUid(), leastTimeLong.toString());
+            Long res;
+            if(tryLockScriptSha != null && !"" .equals(tryLockScriptSha)) {
+                res = (Long) JedisTemplate.operate().evalsha(tryLockScriptSha, 2, RedisReadWriteLock.getWriteLockKey(name), RedisReadWriteLock.getReentrantWriteLockKey(name), RedisReadWriteLock.getThreadUid(), leastTimeLong.toString());
+            }else {
+                res = (Long) JedisTemplate.operate().eval(tryLockScript, 2, RedisReadWriteLock.getWriteLockKey(name), RedisReadWriteLock.getReentrantWriteLockKey(name), RedisReadWriteLock.getThreadUid(), leastTimeLong.toString());
+                tryLockScriptSha = JedisTemplate.operate().scriptLoad(tryLockScript);
+            }
+
             if(res.equals(1L)){
                 //successGetWriteLock
                 log.debug("success get write lock,  writeLock = {}", RedisReadWriteLock.getWriteLockKey(name));
@@ -88,32 +137,14 @@ public class RedisWriteLock implements Lock{
 
     @Override
     public void unlock(String name){
-        StringBuilder sctipt = new StringBuilder();
-        //write-lock reentrant-write-lock uuid
-        sctipt.append("if (redis.call('GET',KEYS[1])== ARGV[1]) then ")
-                    .append("local count = redis.call('GET',KEYS[2]);")
-                    .append("if count then ")
-                        .append("if (tonumber(count) > 1) then ")
-                            .append("count = tonumber(count) - 1;")
-                            .append("local live = redis.call('PTTL',KEYS[2]);")
-                            .append("redis.call('SET',KEYS[2],count,'PX',live);")
-                            //success unlock reentrant-write-lock
-                            .append("return count;")
-                        .append("else ")
-                            .append("redis.call('DEL',KEYS[2]);")
-                            .append("redis.call('DEL',KEYS[1]);")
-                            //success unlock
-                            .append("return 0;")
-                        .append("end;")
-                    .append("else ")
-                        .append("redis.call('DEL',KEYS[1]);")
-                        .append("return 0;")
-                    .append("end;")
-                .append("else ")
-                    //fail unlock, thread not get the lock
-                    .append("return -1;")
-                .append("end;");
-        Long res = (Long) JedisTemplate.operate().eval(sctipt.toString(), 2, RedisReadWriteLock.getWriteLockKey(name), RedisReadWriteLock.getReentrantWriteLockKey(name), RedisReadWriteLock.getThreadUid());
+        Long res;
+        if(unLockScriptSha != null && !"" .equals(unLockScriptSha)){
+            res = (Long) JedisTemplate.operate().evalsha(unLockScriptSha, 2, RedisReadWriteLock.getWriteLockKey(name), RedisReadWriteLock.getReentrantWriteLockKey(name), RedisReadWriteLock.getThreadUid());
+        }else{
+            res = (Long) JedisTemplate.operate().eval(unLockScript, 2, RedisReadWriteLock.getWriteLockKey(name), RedisReadWriteLock.getReentrantWriteLockKey(name), RedisReadWriteLock.getThreadUid());
+            unLockScriptSha = JedisTemplate.operate().scriptLoad(unLockScript);
+        }
+
         if(res.equals(0L)){
             log.debug("success unlock write lock,  writeLock = {}", RedisReadWriteLock.getWriteLockKey(name));
         }else if(res.equals(-1L)){
